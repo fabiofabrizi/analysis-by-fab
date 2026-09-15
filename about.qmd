@@ -1,0 +1,23 @@
+---
+title: "About"
+image: profile.jpg
+about:
+  template: marquee
+  links:
+    - icon: bluesky
+      text: Bluesky
+      href: https://bsky.app/profile/fabanalysis.bsky.social
+    - icon: github
+      text: Github
+      href: https://github.com/fabiofabrizi
+
+---
+
+
+Using real-world data sets, I'll walk through the process of:
+
+* Cleaning data
+* Setting up data pipelines
+* Real-world insights through visualisations
+
+All using the python ecosystem.

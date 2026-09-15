@@ -1,0 +1,43 @@
+project:
+  type: website
+  render:
+    - "*.qmd"
+    - "!posts/data_dcp/"   # Tells Quarto to ignore this folder completely during build
+execute:
+  freeze: auto  # Re-evaluates python cells ONLY when the .qmd file changes
+  cache: true   # Caches heavy execution outputs (e.g., raw dataset loading)
+
+website:
+  title: "Analysis by Fab"
+  page-navigation: true
+  site-path: "/"
+  bread-crumbs: true
+  description: "A Data Analysis Blog"
+  site-url: https://fabiofabrizi.github.io/analysis-by-fab # you must change this appropriately for RSS feeds to work properly
+  navbar:
+    title: "Analysis by Fab"
+    left:
+      - text: "Home"
+        href: index.qmd
+      - text: "Posts"
+        href: posts.qmd
+    right:
+      - about.qmd
+      - icon: github
+        href: https://github.com/fabiofabrizi
+        aria-label: Github
+      - icon: bluesky
+        href: https://bsky.app/profile/fabanalysis.bsky.social
+        aria-label: Bluesky
+format:
+  html:
+    theme:
+      light: cosmo
+      dark: slate
+    toggle-theme: true
+      #- cosmo
+      #- brand
+    css: styles.css
+
+
+

@@ -1,0 +1,215 @@
+---
+title: "UK E-Commerce Transactions: Part 1 - Data Cleansing Pipeline"
+description: "Resolving missing customer IDs, system cancellation anomalies, and non-product line items across 540k retail transactions."
+author: "Fab"
+date: "2026-09-09"
+categories: [Python, pandas, Data Cleansing, Data Visualization, E-Commerce]
+format:
+  html:
+    code-fold: show
+    code-summary: "Click to toggle code"
+    toc: true
+    toc-depth: 3
+---
+
+## Project Goal
+ 
+Build a data cleansing pipeline in Python for the **UK Online Retail dataset** (541,909 raw records), resulting in a reliable dataset that can be used for customer behaviour, revenue analysis and further explorations
+
+### **Key Results & Business Impact**
+* **Data Quality Restoration:** Discarded **150,000+ noisy rows** (~27.8% of the raw dataset), resolving 135k null `CustomerID` records and non-product fees (`AMAZONFEE`, `POSTAGE`).
+* **Storage Optimization:** Converted raw CSV data into compressed **Apache Parquet**, reducing file footprint from **~48 MB to ~10 MB** (80% compression).
+
+---
+
+## Data Pipeline Implementation
+
+Load the necessary libraries to work with the dataset.
+The parquet dataset was created by importing the dataset locally, converting to parquet (using *df.to_parquet()*) and the final cleaned Parquet dataset created by the Python pipeline below.
+
+### Step 1: Import the required libraries and checks
+
+```{python}
+import numpy as np
+import pandas as pd
+import sys
+from pathlib import Path
+
+# Make sure the post dir is on Python's path
+sys.path.append(str(Path(".").resolve()))
+#file_path = sys.path.append(str(Path(".").resolve()))
+```
+
+```{python}
+# Load cleaned Parquet dataset
+online_retail = pd.read_parquet("../data_dcp/OnlineRetail.parquet")
+#online_retail['InvoiceDate'] = pd.to_datetime(online_retail['InvoiceDate'])
+online_retail.head()
+
+```
+
+---
+
+## Exploratory Data Analysis
+
+### 1. Import functions from helper file and call sequentially
+
+```{python}
+# Import functions from scripts in src/
+from src.modular_script_Quarto import dataframe_info,  clean_data, cancelled_transactions, clean_StockCode, clean_quantities_and_prices, generate_data_audit 
+
+
+```
+Summary of the functions: <br>
+
+```{python}
+"""
+*dataframe_info()* 
+
+- Number of rows and columns
+- data types
+- basic statistics
+
+*clean_data()*
+
+- Drop all rows containing empty values
+- Format date strings into datetime UTC
+- Remove the whitespace
+
+*cancelled_transactions()*
+
+- Disregard any cancelled transactions
+
+*clean_StockCode()*
+
+- Get a list of non-numeric codes
+- Remove any non-numeric codes
+
+*clean_quantities_and_prices*
+
+- Remove non-positive quantities and prices
+
+*generate_data_audit*
+
+- Compare the original dataset with the cleaned one in tabular format
+"""
+```
+
+---
+
+### 2. Get basic information on the data
+
+```{python}
+# call the function
+dataframe_info()
+
+```
+---
+### 3. Clean the data
+- Drop all the rows that contain empty values
+- Format the date strings into datetime UTC
+- Remove the whitespace
+
+```{python}
+#import pandas as pd
+# assign to variable
+step_3 = clean_data(online_retail)
+
+```
+---
+
+###  4. Remove the cancelled transactions.
+- Remove all the transactions where the InvoiceNo starts with C.
+```{python}
+step_4 = cancelled_transactions(step_3)
+
+```
+---
+
+### 5. Find the non-numeric Stock Codes and Remove them.
+
+```{python}
+step_5 = clean_StockCode(step_4)
+
+```
+
+### 6. Remove the non-positive quantities and prices and drop duplicates
+
+```{python}
+step_6 = clean_quantities_and_prices(step_5)
+
+```
+
+### 7. Export the cleaned dataset: 
+
+Export the cleaned dataset to be used later.
+
+```{python}
+cleaned_retail = step_6.to_parquet("../data_dcp/clean_online_retail.parquet")
+```
+
+
+### 8. Summarise the data in tabular format: 
+```{python}
+from great_tables import GT, style, loc
+
+# import the cleaned dataset
+cleaned_retail = pd.read_parquet("../data_dcp/clean_online_retail.parquet")
+
+audit_data =[
+        {
+            "Metric": "Total Rows",
+            "Raw State": f"{len(online_retail):,}",
+            "Cleaned State": f"{len(cleaned_retail):,}",
+            "Impact": f"-{len(online_retail) - len(cleaned_retail):,} rows removed"
+        },
+        {
+            "Metric": "Unique Stock Codes",
+            "Raw State": f"{online_retail['StockCode'].nunique():,}",
+            "Cleaned State": f"{cleaned_retail['StockCode'].nunique():,}",
+            "Impact": "Non-inventory stock codes removed (POST, D, etc.)"
+        },
+        {
+            "Metric": "Cancelled Invoices ('C')",
+            "Raw State": f"{online_retail['InvoiceNo'].str.startswith('C', na=False).sum():,}",
+            "Cleaned State": f"{cleaned_retail['InvoiceNo'].str.startswith('C', na=False).sum():,}",
+            "Impact": "Isolated to prevent negative revenue distortion"
+        },
+        {
+            "Metric": "Zero / Negative Unit Prices",
+            "Raw State": f"{(online_retail['UnitPrice'] <= 0).sum():,}",
+            "Cleaned State": f"{(cleaned_retail['UnitPrice'] <= 0).sum():,}",
+            "Impact": "Price anomalies and bad entries removed"
+        }
+
+    ]
+
+# Create dataframe so output renders nicely
+df_audit = pd.DataFrame(audit_data)
+
+# Pass to GT for executive-level Quarto rendering
+(
+    GT(df_audit)
+    .tab_header(
+        title="Data Quality Audit Pipeline",
+        subtitle="Before vs. After  Impact Analysis — Online Retail II"
+    )
+    .cols_label(
+        Metric="Audit Metric",
+        **{"Raw State": "Raw Data", "Cleaned State": "Cleaned Data"}
+    )
+    .tab_style(
+        style=style.text(weight="bold"),
+        locations=loc.column_labels()
+    )
+)
+
+```
+---
+
+## Conclusion & Next steps
+
+Part 2 will explore:
+
+* Plots of the data
+* Feature Engineering 

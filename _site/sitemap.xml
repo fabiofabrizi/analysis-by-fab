@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://your-website-url.example.com/posts/welcome/index.html</loc>
+    <lastmod>2026-09-15T15:13:54.515Z</lastmod>
+  </url>
+  <url>
+    <loc>https://your-website-url.example.com/posts/data-cleaning-project/index.html</loc>
+    <lastmod>2026-09-12T10:56:13.883Z</lastmod>
+  </url>
+  <url>
+    <loc>https://your-website-url.example.com/about.html</loc>
+    <lastmod>2026-09-15T15:03:25.972Z</lastmod>
+  </url>
+  <url>
+    <loc>https://your-website-url.example.com/index.html</loc>
+    <lastmod>2026-09-15T14:07:35.606Z</lastmod>
+  </url>
+  <url>
+    <loc>https://your-website-url.example.com/posts/post-with-code/index.html</loc>
+    <lastmod>2026-09-10T13:13:18.139Z</lastmod>
+  </url>
+  <url>
+    <loc>https://your-website-url.example.com/posts/data-cleaning-project_part 1/index.html</loc>
+    <lastmod>2026-09-15T13:53:49.865Z</lastmod>
+  </url>
+  <url>
+    <loc>https://your-website-url.example.com/posts/data-cleaning-project_part 2/index.html</loc>
+    <lastmod>2026-09-12T10:56:13.883Z</lastmod>
+  </url>
+  <url>
+    <loc>https://your-website-url.example.com/posts.html</loc>
+    <lastmod>2026-09-15T14:24:10.847Z</lastmod>
+  </url>
+  <url>
+    <loc>https://posts/welcome/index.html</loc>
+    <lastmod>2026-09-15T15:13:54.515Z</lastmod>
+  </url>
+  <url>
+    <loc>https://fabiofabrizi.github/posts/welcome/index.html</loc>
+    <lastmod>2026-09-15T15:13:54.515Z</lastmod>
+  </url>
+  <url>
+    <loc>https://fabiofabrizi.github.io/analysis-by-/posts/welcome/index.html</loc>
+    <lastmod>2026-09-15T15:13:54.515Z</lastmod>
+  </url>
+</urlset>

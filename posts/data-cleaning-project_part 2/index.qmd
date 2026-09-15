@@ -1,0 +1,182 @@
+---
+title: "Data Cleansing Pipeline: UK E-Commerce Transactions"
+description: "Resolving missing customer IDs, system cancellation anomalies, and non-product line items across 540k retail transactions."
+author: "Fab"
+date: "2026-09-11"
+categories: [Python, pandas, Data Cleansing, Data Visualization, E-Commerce]
+format:
+  html:
+    code-fold: show
+    code-summary: "Click to toggle code"
+    toc: true
+    toc-depth: 3
+---
+
+## Executive Summary
+
+Operational transaction logs often contain administrative entries, cancellations, and incomplete customer profiles that distort financial reporting. 
+This project involved creating a data cleansing pipeline in Python for the **UK Online Retail dataset** (541,909 raw records).
+
+### **Key Results & Business Impact**
+* **Data Quality Restoration:** Discarded **150,000+ noisy rows** (~27.8% of the raw dataset), resolving 135k null `CustomerID` records and non-product fees (`AMAZONFEE`, `POSTAGE`).
+* **Storage Optimization:** Converted raw CSV data into compressed **Apache Parquet**, reducing file footprint from **~48 MB to ~10 MB** (80% compression).
+* **Revenue Integrity:** Validated **£8.91M** in net revenue across 391,000 clean transactional line items.
+
+---
+
+## Data Pipeline Implementation
+
+We load the necessary libraries and our cleaned Parquet dataset created by our modular Python pipeline.
+
+```{python}
+from pathlib import Path
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import plotly.express as px
+
+# Set global visual style
+sns.set_theme(style="whitegrid", palette="muted")
+plt.rcParams['font.sans-serif'] = 'DejaVu Sans'
+
+# Load cleaned Parquet dataset
+df = pd.read_parquet("clean_online_retail.parquet")
+df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'])
+
+print(f"Dataset successfully loaded: {len(df):,} rows across {df['Country'].nunique()} countries.")
+```
+
+---
+
+## Exploratory Data Analysis & Visualizations
+
+### 1. Daily Revenue Trends & Q4 Seasonality
+
+Below is the daily revenue trajectory across the entire year. Removing cancellation records (`InvoiceNo` starting with `'C'`) prevents negative price spikes from distorting trends.
+
+```{python}
+# Aggregate daily revenue
+daily_revenue = (
+    df.groupby(df['InvoiceDate'].dt.date)['TotalPrice']
+    .sum()
+    .reset_index()
+)
+daily_revenue.columns = ['Date', 'Revenue']
+
+# Plot using Seaborn
+fig, ax = plt.subplots(figsize=(11, 4.5))
+sns.lineplot(data=daily_revenue, x='Date', y='Revenue', color='#1f77b4', linewidth=1.8, ax=ax)
+
+ax.set_title("Daily Total Revenue (£) - UK Online Retail", fontsize=14, fontweight='bold', pad=12)
+ax.set_xlabel("Date", fontsize=11)
+ax.set_ylabel("Revenue (£)", fontsize=11)
+ax.yaxis.set_major_formatter('£{x:,.0f}')
+
+plt.tight_layout()
+plt.show()
+```
+
+---
+
+### 2. Top 10 Best-Selling Products by Revenue
+
+By stripping out administrative non-product codes (like `POSTAGE` and `BANK CHARGES`), we isolate genuine consumer inventory demand.
+
+```{python}
+# Top 10 products by total revenue
+top_products = (
+    df.groupby('Description')['TotalPrice']
+    .sum()
+    .reset_index()
+    .sort_values(by='TotalPrice', ascending=False)
+    .head(10)
+)
+
+# Horizontal Bar Chart
+fig, ax = plt.subplots(figsize=(10, 5))
+sns.barplot(data=top_products, x='TotalPrice', y='Description', palette='Blues_r', ax=ax)
+
+ax.set_title("Top 10 Products by Total Revenue", fontsize=14, fontweight='bold', pad=12)
+ax.set_xlabel("Total Sales (£)", fontsize=11)
+ax.set_ylabel("", fontsize=11)
+ax.xaxis.set_major_formatter('£{x:,.0f}')
+
+plt.tight_layout()
+plt.show()
+```
+
+---
+
+### 3. Interactive International Market Breakdown
+
+Quarto natively supports interactive JavaScript plots using **Plotly**. Users can hover over bars to inspect exact revenue figures and transaction volumes per market outside the UK.
+
+```{python}
+# Filter for international markets (excluding UK for visual clarity)
+intl_markets = (
+    df[df['Country'] != 'United Kingdom']
+    .groupby('Country')
+    .agg(
+        TotalRevenue=('TotalPrice', 'sum'),
+        TotalOrders=('InvoiceNo', 'nunique')
+    )
+    .reset_index()
+    .sort_values(by='TotalRevenue', ascending=False)
+    .head(15)
+)
+
+# Generate interactive Plotly horizontal bar chart
+fig = px.bar(
+    intl_markets,
+    x='TotalRevenue',
+    y='Country',
+    orientation='h',
+    title="<b>Top 15 International Markets (Excluding UK)</b>",
+    labels={'TotalRevenue': 'Total Revenue (£)', 'Country': 'Country'},
+    hover_data={'TotalOrders': ':,', 'TotalRevenue': ':£,.2f'},
+    color='TotalRevenue',
+    color_continuous_scale='Viridis'
+)
+
+fig.update_layout(
+    height=450,
+    yaxis={'categoryorder': 'total ascending'},
+    margin=dict(l=20, r=20, t=50, b=20)
+)
+
+fig.show()
+```
+
+---
+
+### 4. Customer Lifetime Value (LTV) Distribution
+
+By applying `.transform("sum")` in pandas, we calculated total customer lifetime spend across all ~4,300 unique accounts.
+
+```{python}
+# Calculate LTV per unique customer
+customer_ltv = (
+    df.groupby('CustomerID')['TotalPrice']
+    .sum()
+    .reset_index(name='LTV')
+)
+
+# Histogram with KDE overlay
+fig, ax = plt.subplots(figsize=(10, 4.5))
+sns.histplot(customer_ltv[customer_ltv['LTV'] < 5000]['LTV'], bins=40, kde=True, color='#2ca02c', ax=ax)
+
+ax.set_title("Customer Lifetime Value Distribution (LTV < £5,000)", fontsize=14, fontweight='bold', pad=12)
+ax.set_xlabel("Customer LTV (£)", fontsize=11)
+ax.set_ylabel("Customer Count", fontsize=11)
+ax.xaxis.set_major_formatter('£{x:,.0f}')
+
+plt.tight_layout()
+plt.show()
+```
+
+---
+
+## Conclusion & Recommendations
+
+1. **Address Non-Standard Entries at Ingestion:** System cancellations (`InvoiceNo` with `'C'`) and fees should be routed to a dedicated accounting table rather than mixed into line-item sales logs.
+2. **Focus Retention on High-LTV Accounts:** The top 10% of customers generate over 60% of total revenue. Implementing automated re-engagement triggers for key accounts will maximize LTV.

@@ -1,0 +1,12 @@
+---
+title: "Welcome"
+author: "Fab"
+date: "2026-09-01"
+categories: [news]
+---
+
+This is the first post in a Quarto blog. Welcome!
+
+![](thumbnail.jpg)
+
+

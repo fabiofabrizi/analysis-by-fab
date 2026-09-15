@@ -1,0 +1,205 @@
+[
+  {
+    "objectID": "posts/welcome/index.html",
+    "href": "posts/welcome/index.html",
+    "title": "Welcome",
+    "section": "",
+    "text": "This is the first post in a Quarto blog. Welcome!"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "Using real-world data sets, I’ll walk through the process of:\n\nCleaning data\nSetting up data pipelines\nReal-world insights through visualisations\n\nAll using the python ecosystem."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Analysis by Fab",
+    "section": "",
+    "text": "Data Cleansing Pipeline: UK E-Commerce Transactions\n\n\n\nPython\n\npandas\n\nData Cleansing\n\nData Visualization\n\nE-Commerce\n\n\n\nResolving missing customer IDs, system cancellation anomalies, and non-product line items across 540k retail transactions.\n\n\n\n\n\nSep 11, 2026\n\n\nFab\n\n\n\n\n\n\n\n\n\n\n\n\nPost With Code\n\n\n\nnews\n\ncode\n\nanalysis\n\n\n\n\n\n\n\n\n\nSep 10, 2026\n\n\nHarlow Malloc\n\n\n\n\n\n\n\n\n\n\n\n\nUK E-Commerce Transactions: Part 1 - Data Cleansing Pipeline\n\n\n\nPython\n\npandas\n\nData Cleansing\n\nData Visualization\n\nE-Commerce\n\n\n\nResolving missing customer IDs, system cancellation anomalies, and non-product line items across 540k retail transactions.\n\n\n\n\n\nSep 9, 2026\n\n\nFab\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nSep 1, 2026\n\n\nFab\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "posts/post-with-code/index.html",
+    "href": "posts/post-with-code/index.html",
+    "title": "Post With Code",
+    "section": "",
+    "text": "This is a post with executable code."
+  },
+  {
+    "objectID": "posts/data-cleaning-project/index.html",
+    "href": "posts/data-cleaning-project/index.html",
+    "title": "Data Cleansing Pipeline: UK E-Commerce Transactions",
+    "section": "",
+    "text": "Operational transaction logs often contain administrative entries, cancellations, and incomplete customer profiles that distort financial reporting. This project involved creating a data cleansing pipeline in Python for the UK Online Retail dataset (541,909 raw records).\n\n\n\nData Quality Restoration: Discarded 150,000+ noisy rows (~27.8% of the raw dataset), resolving 135k null CustomerID records and non-product fees (AMAZONFEE, POSTAGE).\nStorage Optimization: Converted raw CSV data into compressed Apache Parquet, reducing file footprint from ~48 MB to ~10 MB (80% compression).\nRevenue Integrity: Validated £8.91M in net revenue across 391,000 clean transactional line items."
+  },
+  {
+    "objectID": "posts/data-cleaning-project/index.html#executive-summary",
+    "href": "posts/data-cleaning-project/index.html#executive-summary",
+    "title": "Data Cleansing Pipeline: UK E-Commerce Transactions",
+    "section": "",
+    "text": "Operational transaction logs often contain administrative entries, cancellations, and incomplete customer profiles that distort financial reporting. This project involved creating a data cleansing pipeline in Python for the UK Online Retail dataset (541,909 raw records).\n\n\n\nData Quality Restoration: Discarded 150,000+ noisy rows (~27.8% of the raw dataset), resolving 135k null CustomerID records and non-product fees (AMAZONFEE, POSTAGE).\nStorage Optimization: Converted raw CSV data into compressed Apache Parquet, reducing file footprint from ~48 MB to ~10 MB (80% compression).\nRevenue Integrity: Validated £8.91M in net revenue across 391,000 clean transactional line items."
+  },
+  {
+    "objectID": "posts/data-cleaning-project/index.html#data-pipeline-implementation",
+    "href": "posts/data-cleaning-project/index.html#data-pipeline-implementation",
+    "title": "Data Cleansing Pipeline: UK E-Commerce Transactions",
+    "section": "Data Pipeline Implementation",
+    "text": "Data Pipeline Implementation\nWe load the necessary libraries and our cleaned Parquet dataset created by our modular Python pipeline.\n\n\nClick to toggle code\nfrom pathlib import Path\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport seaborn as sns\nimport plotly.express as px\n\n# Set global visual style\nsns.set_theme(style=\"whitegrid\", palette=\"muted\")\nplt.rcParams['font.sans-serif'] = 'DejaVu Sans'\n\n# Load cleaned Parquet dataset\ndf = pd.read_parquet(\"clean_online_retail.parquet\")\ndf['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'])\n\nprint(f\"Dataset successfully loaded: {len(df):,} rows across {df['Country'].nunique()} countries.\")\n\n\nDataset successfully loaded: 391,150 rows across 37 countries."
+  },
+  {
+    "objectID": "posts/data-cleaning-project/index.html#exploratory-data-analysis-visualizations",
+    "href": "posts/data-cleaning-project/index.html#exploratory-data-analysis-visualizations",
+    "title": "Data Cleansing Pipeline: UK E-Commerce Transactions",
+    "section": "Exploratory Data Analysis & Visualizations",
+    "text": "Exploratory Data Analysis & Visualizations\n\n1. Daily Revenue Trends & Q4 Seasonality\nBelow is the daily revenue trajectory across the entire year. Removing cancellation records (InvoiceNo starting with 'C') prevents negative price spikes from distorting trends.\n\n\nClick to toggle code\n# Aggregate daily revenue\ndaily_revenue = (\n    df.groupby(df['InvoiceDate'].dt.date)['TotalPrice']\n    .sum()\n    .reset_index()\n)\ndaily_revenue.columns = ['Date', 'Revenue']\n\n# Plot using Seaborn\nfig, ax = plt.subplots(figsize=(11, 4.5))\nsns.lineplot(data=daily_revenue, x='Date', y='Revenue', color='#1f77b4', linewidth=1.8, ax=ax)\n\nax.set_title(\"Daily Total Revenue (£) - UK Online Retail\", fontsize=14, fontweight='bold', pad=12)\nax.set_xlabel(\"Date\", fontsize=11)\nax.set_ylabel(\"Revenue (£)\", fontsize=11)\nax.yaxis.set_major_formatter('£{x:,.0f}')\n\nplt.tight_layout()\nplt.show()\n\n\n\n\n\n\n\n\n\n\n\n\n2. Top 10 Best-Selling Products by Revenue\nBy stripping out administrative non-product codes (like POSTAGE and BANK CHARGES), we isolate genuine consumer inventory demand.\n\n\nClick to toggle code\n# Top 10 products by total revenue\ntop_products = (\n    df.groupby('Description')['TotalPrice']\n    .sum()\n    .reset_index()\n    .sort_values(by='TotalPrice', ascending=False)\n    .head(10)\n)\n\n# Horizontal Bar Chart\nfig, ax = plt.subplots(figsize=(10, 5))\nsns.barplot(data=top_products, x='TotalPrice', y='Description', palette='Blues_r', ax=ax)\n\nax.set_title(\"Top 10 Products by Total Revenue\", fontsize=14, fontweight='bold', pad=12)\nax.set_xlabel(\"Total Sales (£)\", fontsize=11)\nax.set_ylabel(\"\", fontsize=11)\nax.xaxis.set_major_formatter('£{x:,.0f}')\n\nplt.tight_layout()\nplt.show()\n\n\nC:\\Users\\fabio\\AppData\\Local\\Temp\\ipykernel_51768\\2647198224.py:12: FutureWarning:\n\n\n\nPassing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `y` variable to `hue` and set `legend=False` for the same effect.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n3. Interactive International Market Breakdown\nQuarto natively supports interactive JavaScript plots using Plotly. Users can hover over bars to inspect exact revenue figures and transaction volumes per market outside the UK.\n\n\nClick to toggle code\n# Filter for international markets (excluding UK for visual clarity)\nintl_markets = (\n    df[df['Country'] != 'United Kingdom']\n    .groupby('Country')\n    .agg(\n        TotalRevenue=('TotalPrice', 'sum'),\n        TotalOrders=('InvoiceNo', 'nunique')\n    )\n    .reset_index()\n    .sort_values(by='TotalRevenue', ascending=False)\n    .head(15)\n)\n\n# Generate interactive Plotly horizontal bar chart\nfig = px.bar(\n    intl_markets,\n    x='TotalRevenue',\n    y='Country',\n    orientation='h',\n    title=\"&lt;b&gt;Top 15 International Markets (Excluding UK)&lt;/b&gt;\",\n    labels={'TotalRevenue': 'Total Revenue (£)', 'Country': 'Country'},\n    hover_data={'TotalOrders': ':,', 'TotalRevenue': ':£,.2f'},\n    color='TotalRevenue',\n    color_continuous_scale='Viridis'\n)\n\nfig.update_layout(\n    height=450,\n    yaxis={'categoryorder': 'total ascending'},\n    margin=dict(l=20, r=20, t=50, b=20)\n)\n\nfig.show()\n\n\n                                                \n\n\n\n\n\n4. Customer Lifetime Value (LTV) Distribution\nBy applying .transform(\"sum\") in pandas, we calculated total customer lifetime spend across all ~4,300 unique accounts.\n\n\nClick to toggle code\n# Calculate LTV per unique customer\ncustomer_ltv = (\n    df.groupby('CustomerID')['TotalPrice']\n    .sum()\n    .reset_index(name='LTV')\n)\n\n# Histogram with KDE overlay\nfig, ax = plt.subplots(figsize=(10, 4.5))\nsns.histplot(customer_ltv[customer_ltv['LTV'] &lt; 5000]['LTV'], bins=40, kde=True, color='#2ca02c', ax=ax)\n\nax.set_title(\"Customer Lifetime Value Distribution (LTV &lt; £5,000)\", fontsize=14, fontweight='bold', pad=12)\nax.set_xlabel(\"Customer LTV (£)\", fontsize=11)\nax.set_ylabel(\"Customer Count\", fontsize=11)\nax.xaxis.set_major_formatter('£{x:,.0f}')\n\nplt.tight_layout()\nplt.show()"
+  },
+  {
+    "objectID": "posts/data-cleaning-project/index.html#conclusion-recommendations",
+    "href": "posts/data-cleaning-project/index.html#conclusion-recommendations",
+    "title": "Data Cleansing Pipeline: UK E-Commerce Transactions",
+    "section": "Conclusion & Recommendations",
+    "text": "Conclusion & Recommendations\n\nAddress Non-Standard Entries at Ingestion: System cancellations (InvoiceNo with 'C') and fees should be routed to a dedicated accounting table rather than mixed into line-item sales logs.\nFocus Retention on High-LTV Accounts: The top 10% of customers generate over 60% of total revenue. Implementing automated re-engagement triggers for key accounts will maximize LTV."
+  },
+  {
+    "objectID": "posts/data-cleaning-project_part 1/index.html",
+    "href": "posts/data-cleaning-project_part 1/index.html",
+    "title": "UK E-Commerce Transactions: Part 1 - Data Cleansing Pipeline",
+    "section": "",
+    "text": "Build a data cleansing pipeline in Python for the UK Online Retail dataset (541,909 raw records), resulting in a reliable dataset that can be used for customer behaviour, revenue analysis and further explorations\n\n\n\nData Quality Restoration: Discarded 150,000+ noisy rows (~27.8% of the raw dataset), resolving 135k null CustomerID records and non-product fees (AMAZONFEE, POSTAGE).\nStorage Optimization: Converted raw CSV data into compressed Apache Parquet, reducing file footprint from ~48 MB to ~10 MB (80% compression)."
+  },
+  {
+    "objectID": "posts/data-cleaning-project_part 1/index.html#project-goal",
+    "href": "posts/data-cleaning-project_part 1/index.html#project-goal",
+    "title": "UK E-Commerce Transactions: Part 1 - Data Cleansing Pipeline",
+    "section": "",
+    "text": "Build a data cleansing pipeline in Python for the UK Online Retail dataset (541,909 raw records), resulting in a reliable dataset that can be used for customer behaviour, revenue analysis and further explorations\n\n\n\nData Quality Restoration: Discarded 150,000+ noisy rows (~27.8% of the raw dataset), resolving 135k null CustomerID records and non-product fees (AMAZONFEE, POSTAGE).\nStorage Optimization: Converted raw CSV data into compressed Apache Parquet, reducing file footprint from ~48 MB to ~10 MB (80% compression)."
+  },
+  {
+    "objectID": "posts/data-cleaning-project_part 1/index.html#data-pipeline-implementation",
+    "href": "posts/data-cleaning-project_part 1/index.html#data-pipeline-implementation",
+    "title": "UK E-Commerce Transactions: Part 1 - Data Cleansing Pipeline",
+    "section": "Data Pipeline Implementation",
+    "text": "Data Pipeline Implementation\nLoad the necessary libraries to work with the dataset. The parquet dataset was created by importing the dataset locally, converting to parquet (using df.to_parquet()) and the final cleaned Parquet dataset created by the Python pipeline below.\n\nStep 1: Import the required libraries and checks\n\n\nClick to toggle code\nimport numpy as np\nimport pandas as pd\nimport sys\nfrom pathlib import Path\n\n# Make sure the post dir is on Python's path\nsys.path.append(str(Path(\".\").resolve()))\n#file_path = sys.path.append(str(Path(\".\").resolve()))\n\n\n\n\nClick to toggle code\n# Load cleaned Parquet dataset\nonline_retail = pd.read_parquet(\"../data_dcp/OnlineRetail.parquet\")\n#online_retail['InvoiceDate'] = pd.to_datetime(online_retail['InvoiceDate'])\nonline_retail.head()\n\n\n\n\n\n\n\n\n\nInvoiceNo\nStockCode\nDescription\nQuantity\nInvoiceDate\nUnitPrice\nCustomerID\nCountry\n\n\n\n\n0\n536365\n85123A\nWHITE HANGING HEART T-LIGHT HOLDER\n6\n12/1/2010 8:26\n2.55\n17850.0\nUnited Kingdom\n\n\n1\n536365\n71053\nWHITE METAL LANTERN\n6\n12/1/2010 8:26\n3.39\n17850.0\nUnited Kingdom\n\n\n2\n536365\n84406B\nCREAM CUPID HEARTS COAT HANGER\n8\n12/1/2010 8:26\n2.75\n17850.0\nUnited Kingdom\n\n\n3\n536365\n84029G\nKNITTED UNION FLAG HOT WATER BOTTLE\n6\n12/1/2010 8:26\n3.39\n17850.0\nUnited Kingdom\n\n\n4\n536365\n84029E\nRED WOOLLY HOTTIE WHITE HEART.\n6\n12/1/2010 8:26\n3.39\n17850.0\nUnited Kingdom"
+  },
+  {
+    "objectID": "posts/data-cleaning-project_part 1/index.html#exploratory-data-analysis",
+    "href": "posts/data-cleaning-project_part 1/index.html#exploratory-data-analysis",
+    "title": "UK E-Commerce Transactions: Part 1 - Data Cleansing Pipeline",
+    "section": "Exploratory Data Analysis",
+    "text": "Exploratory Data Analysis\n\n1. Import functions from helper file and call sequentially\n\n\nClick to toggle code\n# Import functions from scripts in src/\nfrom src.modular_script_Quarto import dataframe_info,  clean_data, cancelled_transactions, clean_StockCode, clean_quantities_and_prices, generate_data_audit \n\n\nSummary of the functions: \n\n\nClick to toggle code\n\"\"\"\n*dataframe_info()* \n\n- Number of rows and columns\n- data types\n- basic statistics\n\n*clean_data()*\n\n- Drop all rows containing empty values\n- Format date strings into datetime UTC\n- Remove the whitespace\n\n*cancelled_transactions()*\n\n- Disregard any cancelled transactions\n\n*clean_StockCode()*\n\n- Get a list of non-numeric codes\n- Remove any non-numeric codes\n\n*clean_quantities_and_prices*\n\n- Remove non-positive quantities and prices\n\n*generate_data_audit*\n\n- Compare the original dataset with the cleaned one in tabular format\n\"\"\"\n\n\n'\\n*dataframe_info()* \\n\\n- Number of rows and columns\\n- data types\\n- basic statistics\\n\\n*clean_data()*\\n\\n- Drop all rows containing empty values\\n- Format date strings into datetime UTC\\n- Remove the whitespace\\n\\n*cancelled_transactions()*\\n\\n- Disregard any cancelled transactions\\n\\n*clean_StockCode()*\\n\\n- Get a list of non-numeric codes\\n- Remove any non-numeric codes\\n\\n*clean_quantities_and_prices*\\n\\n- Remove non-positive quantities and prices\\n\\n*generate_data_audit*\\n\\n- Compare the original dataset with the cleaned one in tabular format\\n'\n\n\n\n\n\n2. Get basic information on the data\n\n\nClick to toggle code\n# call the function\ndataframe_info()\n\n\nThe dataset has 541909 rows and 8 columns.\nColumns of the dataframe and associated data types:\n&lt;class 'pandas.core.frame.DataFrame'&gt;\nRangeIndex: 541909 entries, 0 to 541908\nData columns (total 8 columns):\n #   Column       Non-Null Count   Dtype  \n---  ------       --------------   -----  \n 0   InvoiceNo    541909 non-null  object \n 1   StockCode    541909 non-null  object \n 2   Description  540455 non-null  object \n 3   Quantity     541909 non-null  int64  \n 4   InvoiceDate  541909 non-null  object \n 5   UnitPrice    541909 non-null  float64\n 6   CustomerID   406829 non-null  float64\n 7   Country      541909 non-null  object \ndtypes: float64(2), int64(1), object(5)\nmemory usage: 33.1+ MB\nNone\n\nBasic statistics of the data frame:\n            Quantity      UnitPrice     CustomerID\ncount  541909.000000  541909.000000  406829.000000\nmean        9.552250       4.611114   15287.690570\nstd       218.081158      96.759853    1713.600303\nmin    -80995.000000  -11062.060000   12346.000000\n25%         1.000000       1.250000   13953.000000\n50%         3.000000       2.080000   15152.000000\n75%        10.000000       4.130000   16791.000000\nmax     80995.000000   38970.000000   18287.000000\n\n\n\n\n\n3. Clean the data\n\nDrop all the rows that contain empty values\nFormat the date strings into datetime UTC\nRemove the whitespace\n\n\n\nClick to toggle code\n#import pandas as pd\n# assign to variable\nstep_3 = clean_data(online_retail)\n\n\nFormat date strings into datetime\n&lt;class 'pandas.core.frame.DataFrame'&gt;\nIndex: 406829 entries, 0 to 541908\nData columns (total 8 columns):\n #   Column       Non-Null Count   Dtype         \n---  ------       --------------   -----         \n 0   InvoiceNo    406829 non-null  object        \n 1   StockCode    406829 non-null  object        \n 2   Description  406829 non-null  object        \n 3   Quantity     406829 non-null  int64         \n 4   InvoiceDate  406829 non-null  datetime64[ns]\n 5   UnitPrice    406829 non-null  float64       \n 6   CustomerID   406829 non-null  float64       \n 7   Country      406829 non-null  object        \ndtypes: datetime64[ns](1), float64(2), int64(1), object(4)\nmemory usage: 27.9+ MB\n\n\n\n\n\n4. Remove the cancelled transactions.\n\nRemove all the transactions where the InvoiceNo starts with C.\n\n\n\nClick to toggle code\nstep_4 = cancelled_transactions(step_3)\n\n\nAfter dropping cancellations: 397,924 rows\n\n\n\n\n\n5. Find the non-numeric Stock Codes and Remove them.\n\n\nClick to toggle code\nstep_5 = clean_StockCode(step_4)\n\n\n      StockCode                 Description  OccurrenceCount\n5          POST                     POSTAGE             1099\n3             M                      Manual              290\n1            C2                    CARRIAGE              133\n2           DOT              DOTCOM POSTAGE               16\n0  BANK CHARGES                Bank Charges               12\n4          PADS  PADS TO MATCH ALL CUSHIONS                4\n['POST', 'M', 'C2', 'DOT', 'BANK CHARGES', 'PADS']\nAfter removing the non-numeric stock codes: 396,370 rows\n\n\n\n\n6. Remove the non-positive quantities and prices and drop duplicates\n\n\nClick to toggle code\nstep_6 = clean_quantities_and_prices(step_5)\n\n\nAfter removing non-positive quantities and prices: 396,337 rows\n\n\n\n\n7. Export the cleaned dataset:\nExport the cleaned dataset to be used later.\n\n\nClick to toggle code\ncleaned_retail = step_6.to_parquet(\"../data_dcp/clean_online_retail.parquet\")\n\n\n\n\n8. Summarise the data in tabular format:\n\n\nClick to toggle code\nfrom great_tables import GT, style, loc\n\n# import the cleaned dataset\ncleaned_retail = pd.read_parquet(\"../data_dcp/clean_online_retail.parquet\")\n\naudit_data =[\n        {\n            \"Metric\": \"Total Rows\",\n            \"Raw State\": f\"{len(online_retail):,}\",\n            \"Cleaned State\": f\"{len(cleaned_retail):,}\",\n            \"Impact\": f\"-{len(online_retail) - len(cleaned_retail):,} rows removed\"\n        },\n        {\n            \"Metric\": \"Unique Stock Codes\",\n            \"Raw State\": f\"{online_retail['StockCode'].nunique():,}\",\n            \"Cleaned State\": f\"{cleaned_retail['StockCode'].nunique():,}\",\n            \"Impact\": \"Non-inventory stock codes removed (POST, D, etc.)\"\n        },\n        {\n            \"Metric\": \"Cancelled Invoices ('C')\",\n            \"Raw State\": f\"{online_retail['InvoiceNo'].str.startswith('C', na=False).sum():,}\",\n            \"Cleaned State\": f\"{cleaned_retail['InvoiceNo'].str.startswith('C', na=False).sum():,}\",\n            \"Impact\": \"Isolated to prevent negative revenue distortion\"\n        },\n        {\n            \"Metric\": \"Zero / Negative Unit Prices\",\n            \"Raw State\": f\"{(online_retail['UnitPrice'] &lt;= 0).sum():,}\",\n            \"Cleaned State\": f\"{(cleaned_retail['UnitPrice'] &lt;= 0).sum():,}\",\n            \"Impact\": \"Price anomalies and bad entries removed\"\n        }\n\n    ]\n\n# Create dataframe so output renders nicely\ndf_audit = pd.DataFrame(audit_data)\n\n# Pass to GT for executive-level Quarto rendering\n(\n    GT(df_audit)\n    .tab_header(\n        title=\"Data Quality Audit Pipeline\",\n        subtitle=\"Before vs. After  Impact Analysis — Online Retail II\"\n    )\n    .cols_label(\n        Metric=\"Audit Metric\",\n        **{\"Raw State\": \"Raw Data\", \"Cleaned State\": \"Cleaned Data\"}\n    )\n    .tab_style(\n        style=style.text(weight=\"bold\"),\n        locations=loc.column_labels()\n    )\n)\n\n\n\n\n\n\n\n\nData Quality Audit Pipeline\n\n\nBefore vs. After Impact Analysis — Online Retail II\n\n\nAudit Metric\nRaw Data\nCleaned Data\nImpact\n\n\n\n\nTotal Rows\n541,909\n396,337\n-145,572 rows removed\n\n\nUnique Stock Codes\n4,070\n3,659\nNon-inventory stock codes removed (POST, D, etc.)\n\n\nCancelled Invoices ('C')\n9,288\n0\nIsolated to prevent negative revenue distortion\n\n\nZero / Negative Unit Prices\n2,517\n0\nPrice anomalies and bad entries removed"
+  },
+  {
+    "objectID": "posts/data-cleaning-project_part 1/index.html#conclusion-recommendations",
+    "href": "posts/data-cleaning-project_part 1/index.html#conclusion-recommendations",
+    "title": "UK E-Commerce Transactions: Part 1 - Data Cleansing Pipeline",
+    "section": "Conclusion & Recommendations",
+    "text": "Conclusion & Recommendations\n\nAddress Non-Standard Entries at Ingestion: System cancellations (InvoiceNo with 'C') and fees should be routed to a dedicated accounting table rather than mixed into line-item sales logs.\nFocus Retention on High-LTV Accounts: The top 10% of customers generate over 60% of total revenue. Implementing automated re-engagement triggers for key accounts will maximize LTV."
+  },
+  {
+    "objectID": "posts/data-cleaning-project_part 2/index.html",
+    "href": "posts/data-cleaning-project_part 2/index.html",
+    "title": "Data Cleansing Pipeline: UK E-Commerce Transactions",
+    "section": "",
+    "text": "Operational transaction logs often contain administrative entries, cancellations, and incomplete customer profiles that distort financial reporting. This project involved creating a data cleansing pipeline in Python for the UK Online Retail dataset (541,909 raw records).\n\n\n\nData Quality Restoration: Discarded 150,000+ noisy rows (~27.8% of the raw dataset), resolving 135k null CustomerID records and non-product fees (AMAZONFEE, POSTAGE).\nStorage Optimization: Converted raw CSV data into compressed Apache Parquet, reducing file footprint from ~48 MB to ~10 MB (80% compression).\nRevenue Integrity: Validated £8.91M in net revenue across 391,000 clean transactional line items."
+  },
+  {
+    "objectID": "posts/data-cleaning-project_part 2/index.html#executive-summary",
+    "href": "posts/data-cleaning-project_part 2/index.html#executive-summary",
+    "title": "Data Cleansing Pipeline: UK E-Commerce Transactions",
+    "section": "",
+    "text": "Operational transaction logs often contain administrative entries, cancellations, and incomplete customer profiles that distort financial reporting. This project involved creating a data cleansing pipeline in Python for the UK Online Retail dataset (541,909 raw records).\n\n\n\nData Quality Restoration: Discarded 150,000+ noisy rows (~27.8% of the raw dataset), resolving 135k null CustomerID records and non-product fees (AMAZONFEE, POSTAGE).\nStorage Optimization: Converted raw CSV data into compressed Apache Parquet, reducing file footprint from ~48 MB to ~10 MB (80% compression).\nRevenue Integrity: Validated £8.91M in net revenue across 391,000 clean transactional line items."
+  },
+  {
+    "objectID": "posts/data-cleaning-project_part 2/index.html#data-pipeline-implementation",
+    "href": "posts/data-cleaning-project_part 2/index.html#data-pipeline-implementation",
+    "title": "Data Cleansing Pipeline: UK E-Commerce Transactions",
+    "section": "Data Pipeline Implementation",
+    "text": "Data Pipeline Implementation\nWe load the necessary libraries and our cleaned Parquet dataset created by our modular Python pipeline.\n\n\nClick to toggle code\nfrom pathlib import Path\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport seaborn as sns\nimport plotly.express as px\n\n# Set global visual style\nsns.set_theme(style=\"whitegrid\", palette=\"muted\")\nplt.rcParams['font.sans-serif'] = 'DejaVu Sans'\n\n# Load cleaned Parquet dataset\ndf = pd.read_parquet(\"clean_online_retail.parquet\")\ndf['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'])\n\nprint(f\"Dataset successfully loaded: {len(df):,} rows across {df['Country'].nunique()} countries.\")\n\n\nDataset successfully loaded: 391,150 rows across 37 countries."
+  },
+  {
+    "objectID": "posts/data-cleaning-project_part 2/index.html#exploratory-data-analysis-visualizations",
+    "href": "posts/data-cleaning-project_part 2/index.html#exploratory-data-analysis-visualizations",
+    "title": "Data Cleansing Pipeline: UK E-Commerce Transactions",
+    "section": "Exploratory Data Analysis & Visualizations",
+    "text": "Exploratory Data Analysis & Visualizations\n\n1. Daily Revenue Trends & Q4 Seasonality\nBelow is the daily revenue trajectory across the entire year. Removing cancellation records (InvoiceNo starting with 'C') prevents negative price spikes from distorting trends.\n\n\nClick to toggle code\n# Aggregate daily revenue\ndaily_revenue = (\n    df.groupby(df['InvoiceDate'].dt.date)['TotalPrice']\n    .sum()\n    .reset_index()\n)\ndaily_revenue.columns = ['Date', 'Revenue']\n\n# Plot using Seaborn\nfig, ax = plt.subplots(figsize=(11, 4.5))\nsns.lineplot(data=daily_revenue, x='Date', y='Revenue', color='#1f77b4', linewidth=1.8, ax=ax)\n\nax.set_title(\"Daily Total Revenue (£) - UK Online Retail\", fontsize=14, fontweight='bold', pad=12)\nax.set_xlabel(\"Date\", fontsize=11)\nax.set_ylabel(\"Revenue (£)\", fontsize=11)\nax.yaxis.set_major_formatter('£{x:,.0f}')\n\nplt.tight_layout()\nplt.show()\n\n\n\n\n\n\n\n\n\n\n\n\n2. Top 10 Best-Selling Products by Revenue\nBy stripping out administrative non-product codes (like POSTAGE and BANK CHARGES), we isolate genuine consumer inventory demand.\n\n\nClick to toggle code\n# Top 10 products by total revenue\ntop_products = (\n    df.groupby('Description')['TotalPrice']\n    .sum()\n    .reset_index()\n    .sort_values(by='TotalPrice', ascending=False)\n    .head(10)\n)\n\n# Horizontal Bar Chart\nfig, ax = plt.subplots(figsize=(10, 5))\nsns.barplot(data=top_products, x='TotalPrice', y='Description', palette='Blues_r', ax=ax)\n\nax.set_title(\"Top 10 Products by Total Revenue\", fontsize=14, fontweight='bold', pad=12)\nax.set_xlabel(\"Total Sales (£)\", fontsize=11)\nax.set_ylabel(\"\", fontsize=11)\nax.xaxis.set_major_formatter('£{x:,.0f}')\n\nplt.tight_layout()\nplt.show()\n\n\nC:\\Users\\fabio\\AppData\\Local\\Temp\\ipykernel_59244\\2647198224.py:12: FutureWarning:\n\n\n\nPassing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `y` variable to `hue` and set `legend=False` for the same effect.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n3. Interactive International Market Breakdown\nQuarto natively supports interactive JavaScript plots using Plotly. Users can hover over bars to inspect exact revenue figures and transaction volumes per market outside the UK.\n\n\nClick to toggle code\n# Filter for international markets (excluding UK for visual clarity)\nintl_markets = (\n    df[df['Country'] != 'United Kingdom']\n    .groupby('Country')\n    .agg(\n        TotalRevenue=('TotalPrice', 'sum'),\n        TotalOrders=('InvoiceNo', 'nunique')\n    )\n    .reset_index()\n    .sort_values(by='TotalRevenue', ascending=False)\n    .head(15)\n)\n\n# Generate interactive Plotly horizontal bar chart\nfig = px.bar(\n    intl_markets,\n    x='TotalRevenue',\n    y='Country',\n    orientation='h',\n    title=\"&lt;b&gt;Top 15 International Markets (Excluding UK)&lt;/b&gt;\",\n    labels={'TotalRevenue': 'Total Revenue (£)', 'Country': 'Country'},\n    hover_data={'TotalOrders': ':,', 'TotalRevenue': ':£,.2f'},\n    color='TotalRevenue',\n    color_continuous_scale='Viridis'\n)\n\nfig.update_layout(\n    height=450,\n    yaxis={'categoryorder': 'total ascending'},\n    margin=dict(l=20, r=20, t=50, b=20)\n)\n\nfig.show()\n\n\n                                                \n\n\n\n\n\n4. Customer Lifetime Value (LTV) Distribution\nBy applying .transform(\"sum\") in pandas, we calculated total customer lifetime spend across all ~4,300 unique accounts.\n\n\nClick to toggle code\n# Calculate LTV per unique customer\ncustomer_ltv = (\n    df.groupby('CustomerID')['TotalPrice']\n    .sum()\n    .reset_index(name='LTV')\n)\n\n# Histogram with KDE overlay\nfig, ax = plt.subplots(figsize=(10, 4.5))\nsns.histplot(customer_ltv[customer_ltv['LTV'] &lt; 5000]['LTV'], bins=40, kde=True, color='#2ca02c', ax=ax)\n\nax.set_title(\"Customer Lifetime Value Distribution (LTV &lt; £5,000)\", fontsize=14, fontweight='bold', pad=12)\nax.set_xlabel(\"Customer LTV (£)\", fontsize=11)\nax.set_ylabel(\"Customer Count\", fontsize=11)\nax.xaxis.set_major_formatter('£{x:,.0f}')\n\nplt.tight_layout()\nplt.show()"
+  },
+  {
+    "objectID": "posts/data-cleaning-project_part 2/index.html#conclusion-recommendations",
+    "href": "posts/data-cleaning-project_part 2/index.html#conclusion-recommendations",
+    "title": "Data Cleansing Pipeline: UK E-Commerce Transactions",
+    "section": "Conclusion & Recommendations",
+    "text": "Conclusion & Recommendations\n\nAddress Non-Standard Entries at Ingestion: System cancellations (InvoiceNo with 'C') and fees should be routed to a dedicated accounting table rather than mixed into line-item sales logs.\nFocus Retention on High-LTV Accounts: The top 10% of customers generate over 60% of total revenue. Implementing automated re-engagement triggers for key accounts will maximize LTV."
+  },
+  {
+    "objectID": "posts/data-cleaning-project_part 1/index.html#conclusion-next-steps",
+    "href": "posts/data-cleaning-project_part 1/index.html#conclusion-next-steps",
+    "title": "UK E-Commerce Transactions: Part 1 - Data Cleansing Pipeline",
+    "section": "Conclusion & Next steps",
+    "text": "Conclusion & Next steps\nPart 2 will explore:\n\nPlots of the data\nFeature Engineering"
+  },
+  {
+    "objectID": "posts/data-cleaning-project_part 1/index.html#section",
+    "href": "posts/data-cleaning-project_part 1/index.html#section",
+    "title": "UK E-Commerce Transactions: Part 1 - Data Cleansing Pipeline",
+    "section": "““”",
+    "text": "““”\n\n2. Get basic information on the data\n\n\nClick to toggle code\n# call the function\ndataframe_info()\n\n\nThe dataset has 541909 rows and 8 columns.\nColumns of the dataframe and associated data types:\n&lt;class 'pandas.core.frame.DataFrame'&gt;\nRangeIndex: 541909 entries, 0 to 541908\nData columns (total 8 columns):\n #   Column       Non-Null Count   Dtype  \n---  ------       --------------   -----  \n 0   InvoiceNo    541909 non-null  object \n 1   StockCode    541909 non-null  object \n 2   Description  540455 non-null  object \n 3   Quantity     541909 non-null  int64  \n 4   InvoiceDate  541909 non-null  object \n 5   UnitPrice    541909 non-null  float64\n 6   CustomerID   406829 non-null  float64\n 7   Country      541909 non-null  object \ndtypes: float64(2), int64(1), object(5)\nmemory usage: 33.1+ MB\nNone\n\nBasic statistics of the data frame:\n            Quantity      UnitPrice     CustomerID\ncount  541909.000000  541909.000000  406829.000000\nmean        9.552250       4.611114   15287.690570\nstd       218.081158      96.759853    1713.600303\nmin    -80995.000000  -11062.060000   12346.000000\n25%         1.000000       1.250000   13953.000000\n50%         3.000000       2.080000   15152.000000\n75%        10.000000       4.130000   16791.000000\nmax     80995.000000   38970.000000   18287.000000\n\n\n\n\n3. Clean the data\n\nDrop all the rows that contain empty values\nFormat the date strings into datetime UTC\nRemove the whitespace\n\n\n\n\n3. Remove the non-numeric stock codes.\nStock codes in the UK typically have 5 digits - so look for codes that don’t start with a digit, i.e. are non-numeric\n\n\n\n4. Remove the rows with missing customer IDs and descriptions\n\n\n5. Remove the non-positive quantities and prices and drop duplicates\n\n\n6. Feature Engineering:\n\nCreate a TotalPrice Feature:\n\n\nCustomer Lifetime Value (LTV):\nCalculate Customer Lifetime Value and attach it to each row of the dataframe."
+  },
+  {
+    "objectID": "posts/data-cleaning-project_part 1/index.html#clean_data",
+    "href": "posts/data-cleaning-project_part 1/index.html#clean_data",
+    "title": "UK E-Commerce Transactions: Part 1 - Data Cleansing Pipeline",
+    "section": "clean_data",
+    "text": "clean_data\n\n\n2. Get basic information on the data\n\n\nClick to toggle code\n# call the function\ndataframe_info()\n\n\nThe dataset has 541909 rows and 8 columns.\nColumns of the dataframe and associated data types:\n&lt;class 'pandas.core.frame.DataFrame'&gt;\nRangeIndex: 541909 entries, 0 to 541908\nData columns (total 8 columns):\n #   Column       Non-Null Count   Dtype  \n---  ------       --------------   -----  \n 0   InvoiceNo    541909 non-null  object \n 1   StockCode    541909 non-null  object \n 2   Description  540455 non-null  object \n 3   Quantity     541909 non-null  int64  \n 4   InvoiceDate  541909 non-null  object \n 5   UnitPrice    541909 non-null  float64\n 6   CustomerID   406829 non-null  float64\n 7   Country      541909 non-null  object \ndtypes: float64(2), int64(1), object(5)\nmemory usage: 33.1+ MB\nNone\n\nBasic statistics of the data frame:\n            Quantity      UnitPrice     CustomerID\ncount  541909.000000  541909.000000  406829.000000\nmean        9.552250       4.611114   15287.690570\nstd       218.081158      96.759853    1713.600303\nmin    -80995.000000  -11062.060000   12346.000000\n25%         1.000000       1.250000   13953.000000\n50%         3.000000       2.080000   15152.000000\n75%        10.000000       4.130000   16791.000000\nmax     80995.000000   38970.000000   18287.000000\n\n\n\n\n3. Clean the data\n\nDrop all the rows that contain empty values\nFormat the date strings into datetime UTC\nRemove the whitespace\n\n\n\n\n3. Remove the non-numeric stock codes.\nStock codes in the UK typically have 5 digits - so look for codes that don’t start with a digit, i.e. are non-numeric\n\n\n\n4. Remove the rows with missing customer IDs and descriptions\n\n\n5. Remove the non-positive quantities and prices and drop duplicates\n\n\n6. Feature Engineering:\n\nCreate a TotalPrice Feature:\n\n\nCustomer Lifetime Value (LTV):\nCalculate Customer Lifetime Value and attach it to each row of the dataframe."
+  },
+  {
+    "objectID": "posts/data-cleaning-project_part 1/index.html#audit_table",
+    "href": "posts/data-cleaning-project_part 1/index.html#audit_table",
+    "title": "UK E-Commerce Transactions: Part 1 - Data Cleansing Pipeline",
+    "section": "audit_table =",
+    "text": "audit_table ="
+  },
+  {
+    "objectID": "posts/data-cleaning-project_part 1/index.html#audit_table-generate",
+    "href": "posts/data-cleaning-project_part 1/index.html#audit_table-generate",
+    "title": "UK E-Commerce Transactions: Part 1 - Data Cleansing Pipeline",
+    "section": "audit_table = generate",
+    "text": "audit_table = generate"
+  },
+  {
+    "objectID": "posts/data-cleaning-project_part 1/index.html#audit_table-generate_data_aud",
+    "href": "posts/data-cleaning-project_part 1/index.html#audit_table-generate_data_aud",
+    "title": "UK E-Commerce Transactions: Part 1 - Data Cleansing Pipeline",
+    "section": "audit_table = generate_data_aud",
+    "text": "audit_table = generate_data_aud"
+  },
+  {
+    "objectID": "posts/data-cleaning-project_part 1/index.html#audit_table-generate_data_auditonline_ret",
+    "href": "posts/data-cleaning-project_part 1/index.html#audit_table-generate_data_auditonline_ret",
+    "title": "UK E-Commerce Transactions: Part 1 - Data Cleansing Pipeline",
+    "section": "audit_table = generate_data_audit(online_ret)",
+    "text": "audit_table = generate_data_audit(online_ret)"
+  },
+  {
+    "objectID": "posts/data-cleaning-project_part 1/index.html#audit_table-generate_data_auditonline_retail-cleaned_retail",
+    "href": "posts/data-cleaning-project_part 1/index.html#audit_table-generate_data_auditonline_retail-cleaned_retail",
+    "title": "UK E-Commerce Transactions: Part 1 - Data Cleansing Pipeline",
+    "section": "audit_table = generate_data_audit(online_retail, cleaned_retail)",
+    "text": "audit_table = generate_data_audit(online_retail, cleaned_retail)"
+  },
+  {
+    "objectID": "posts/data-cleaning-project_part 1/index.html#printaudit_table",
+    "href": "posts/data-cleaning-project_part 1/index.html#printaudit_table",
+    "title": "UK E-Commerce Transactions: Part 1 - Data Cleansing Pipeline",
+    "section": "print(audit_table)",
+    "text": "print(audit_table)"
+  },
+  {
+    "objectID": "posts.html",
+    "href": "posts.html",
+    "title": "Posts",
+    "section": "",
+    "text": "Data Cleansing Pipeline: UK E-Commerce Transactions\n\n3 min\n\n\nPython\n\npandas\n\nData Cleansing\n\nData Visualization\n\nE-Commerce\n\n\n\nResolving missing customer IDs, system cancellation anomalies, and non-product line items across 540k retail transactions.\n\n\n\nSep 11, 2026\n\n\n\n\n\n\n\n\n\n\n\n\n\nPost With Code\n\n1 min\n\n\nnews\n\ncode\n\nanalysis\n\n\n\n\n\n\n\nSep 10, 2026\n\n\n\n\n\n\n\n\n\n\n\nUK E-Commerce Transactions: Part 1 - Data Cleansing Pipeline\n\n5 min\n\n\nPython\n\npandas\n\nData Cleansing\n\nData Visualization\n\nE-Commerce\n\n\n\nResolving missing customer IDs, system cancellation anomalies, and non-product line items across 540k retail transactions.\n\n\n\nSep 9, 2026\n\n\n\n\n\n\n\n\n\n\n\nWelcome\n\n1 min\n\n\nnews\n\n\n\n\n\n\n\nSep 1, 2026\n\n\n\n\n\n\nNo matching items"
+  }
+]
