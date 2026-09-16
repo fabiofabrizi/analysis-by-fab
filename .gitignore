@@ -1,0 +1,5 @@
+.quarto/
+_site/
+_freeze/
+*.pyc
+__pycache__/
