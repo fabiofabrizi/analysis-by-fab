@@ -7,62 +7,6 @@
     "text": "This is the first post in a Quarto blog. Welcome!"
   },
   {
-    "objectID": "posts/data-cleaning-project_part 2/index.html",
-    "href": "posts/data-cleaning-project_part 2/index.html",
-    "title": "Data Cleansing Pipeline: UK E-Commerce Transactions",
-    "section": "",
-    "text": "Operational transaction logs often contain administrative entries, cancellations, and incomplete customer profiles that distort financial reporting. This project involved creating a data cleansing pipeline in Python for the UK Online Retail dataset (541,909 raw records).\n\n\n\nData Quality Restoration: Discarded 150,000+ noisy rows (~27.8% of the raw dataset), resolving 135k null CustomerID records and non-product fees (AMAZONFEE, POSTAGE).\nStorage Optimization: Converted raw CSV data into compressed Apache Parquet, reducing file footprint from ~48 MB to ~10 MB (80% compression).\nRevenue Integrity: Validated £8.91M in net revenue across 391,000 clean transactional line items."
-  },
-  {
-    "objectID": "posts/data-cleaning-project_part 2/index.html#executive-summary",
-    "href": "posts/data-cleaning-project_part 2/index.html#executive-summary",
-    "title": "Data Cleansing Pipeline: UK E-Commerce Transactions",
-    "section": "",
-    "text": "Operational transaction logs often contain administrative entries, cancellations, and incomplete customer profiles that distort financial reporting. This project involved creating a data cleansing pipeline in Python for the UK Online Retail dataset (541,909 raw records).\n\n\n\nData Quality Restoration: Discarded 150,000+ noisy rows (~27.8% of the raw dataset), resolving 135k null CustomerID records and non-product fees (AMAZONFEE, POSTAGE).\nStorage Optimization: Converted raw CSV data into compressed Apache Parquet, reducing file footprint from ~48 MB to ~10 MB (80% compression).\nRevenue Integrity: Validated £8.91M in net revenue across 391,000 clean transactional line items."
-  },
-  {
-    "objectID": "posts/data-cleaning-project_part 2/index.html#data-pipeline-implementation",
-    "href": "posts/data-cleaning-project_part 2/index.html#data-pipeline-implementation",
-    "title": "Data Cleansing Pipeline: UK E-Commerce Transactions",
-    "section": "Data Pipeline Implementation",
-    "text": "Data Pipeline Implementation\nWe load the necessary libraries and our cleaned Parquet dataset created by our modular Python pipeline.\n\n\nClick to toggle code\nfrom pathlib import Path\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport seaborn as sns\nimport plotly.express as px\n\n# Set global visual style\nsns.set_theme(style=\"whitegrid\", palette=\"muted\")\nplt.rcParams['font.sans-serif'] = 'DejaVu Sans'\n\n# Load cleaned Parquet dataset\ndf = pd.read_parquet(\"clean_online_retail.parquet\")\ndf['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'])\n\nprint(f\"Dataset successfully loaded: {len(df):,} rows across {df['Country'].nunique()} countries.\")\n\n\nDataset successfully loaded: 391,150 rows across 37 countries."
-  },
-  {
-    "objectID": "posts/data-cleaning-project_part 2/index.html#exploratory-data-analysis-visualizations",
-    "href": "posts/data-cleaning-project_part 2/index.html#exploratory-data-analysis-visualizations",
-    "title": "Data Cleansing Pipeline: UK E-Commerce Transactions",
-    "section": "Exploratory Data Analysis & Visualizations",
-    "text": "Exploratory Data Analysis & Visualizations\n\n1. Daily Revenue Trends & Q4 Seasonality\nBelow is the daily revenue trajectory across the entire year. Removing cancellation records (InvoiceNo starting with 'C') prevents negative price spikes from distorting trends.\n\n\nClick to toggle code\n# Aggregate daily revenue\ndaily_revenue = (\n    df.groupby(df['InvoiceDate'].dt.date)['TotalPrice']\n    .sum()\n    .reset_index()\n)\ndaily_revenue.columns = ['Date', 'Revenue']\n\n# Plot using Seaborn\nfig, ax = plt.subplots(figsize=(11, 4.5))\nsns.lineplot(data=daily_revenue, x='Date', y='Revenue', color='#1f77b4', linewidth=1.8, ax=ax)\n\nax.set_title(\"Daily Total Revenue (£) - UK Online Retail\", fontsize=14, fontweight='bold', pad=12)\nax.set_xlabel(\"Date\", fontsize=11)\nax.set_ylabel(\"Revenue (£)\", fontsize=11)\nax.yaxis.set_major_formatter('£{x:,.0f}')\n\nplt.tight_layout()\nplt.show()\n\n\n\n\n\n\n\n\n\n\n\n\n2. Top 10 Best-Selling Products by Revenue\nBy stripping out administrative non-product codes (like POSTAGE and BANK CHARGES), we isolate genuine consumer inventory demand.\n\n\nClick to toggle code\n# Top 10 products by total revenue\ntop_products = (\n    df.groupby('Description')['TotalPrice']\n    .sum()\n    .reset_index()\n    .sort_values(by='TotalPrice', ascending=False)\n    .head(10)\n)\n\n# Horizontal Bar Chart\nfig, ax = plt.subplots(figsize=(10, 5))\nsns.barplot(data=top_products, x='TotalPrice', y='Description', palette='Blues_r', ax=ax)\n\nax.set_title(\"Top 10 Products by Total Revenue\", fontsize=14, fontweight='bold', pad=12)\nax.set_xlabel(\"Total Sales (£)\", fontsize=11)\nax.set_ylabel(\"\", fontsize=11)\nax.xaxis.set_major_formatter('£{x:,.0f}')\n\nplt.tight_layout()\nplt.show()\n\n\nC:\\Users\\fabio\\AppData\\Local\\Temp\\ipykernel_59244\\2647198224.py:12: FutureWarning:\n\n\n\nPassing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `y` variable to `hue` and set `legend=False` for the same effect.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n3. Interactive International Market Breakdown\nQuarto natively supports interactive JavaScript plots using Plotly. Users can hover over bars to inspect exact revenue figures and transaction volumes per market outside the UK.\n\n\nClick to toggle code\n# Filter for international markets (excluding UK for visual clarity)\nintl_markets = (\n    df[df['Country'] != 'United Kingdom']\n    .groupby('Country')\n    .agg(\n        TotalRevenue=('TotalPrice', 'sum'),\n        TotalOrders=('InvoiceNo', 'nunique')\n    )\n    .reset_index()\n    .sort_values(by='TotalRevenue', ascending=False)\n    .head(15)\n)\n\n# Generate interactive Plotly horizontal bar chart\nfig = px.bar(\n    intl_markets,\n    x='TotalRevenue',\n    y='Country',\n    orientation='h',\n    title=\"&lt;b&gt;Top 15 International Markets (Excluding UK)&lt;/b&gt;\",\n    labels={'TotalRevenue': 'Total Revenue (£)', 'Country': 'Country'},\n    hover_data={'TotalOrders': ':,', 'TotalRevenue': ':£,.2f'},\n    color='TotalRevenue',\n    color_continuous_scale='Viridis'\n)\n\nfig.update_layout(\n    height=450,\n    yaxis={'categoryorder': 'total ascending'},\n    margin=dict(l=20, r=20, t=50, b=20)\n)\n\nfig.show()\n\n\n                                                \n\n\n\n\n\n4. Customer Lifetime Value (LTV) Distribution\nBy applying .transform(\"sum\") in pandas, we calculated total customer lifetime spend across all ~4,300 unique accounts.\n\n\nClick to toggle code\n# Calculate LTV per unique customer\ncustomer_ltv = (\n    df.groupby('CustomerID')['TotalPrice']\n    .sum()\n    .reset_index(name='LTV')\n)\n\n# Histogram with KDE overlay\nfig, ax = plt.subplots(figsize=(10, 4.5))\nsns.histplot(customer_ltv[customer_ltv['LTV'] &lt; 5000]['LTV'], bins=40, kde=True, color='#2ca02c', ax=ax)\n\nax.set_title(\"Customer Lifetime Value Distribution (LTV &lt; £5,000)\", fontsize=14, fontweight='bold', pad=12)\nax.set_xlabel(\"Customer LTV (£)\", fontsize=11)\nax.set_ylabel(\"Customer Count\", fontsize=11)\nax.xaxis.set_major_formatter('£{x:,.0f}')\n\nplt.tight_layout()\nplt.show()"
-  },
-  {
-    "objectID": "posts/data-cleaning-project_part 2/index.html#conclusion-recommendations",
-    "href": "posts/data-cleaning-project_part 2/index.html#conclusion-recommendations",
-    "title": "Data Cleansing Pipeline: UK E-Commerce Transactions",
-    "section": "Conclusion & Recommendations",
-    "text": "Conclusion & Recommendations\n\nAddress Non-Standard Entries at Ingestion: System cancellations (InvoiceNo with 'C') and fees should be routed to a dedicated accounting table rather than mixed into line-item sales logs.\nFocus Retention on High-LTV Accounts: The top 10% of customers generate over 60% of total revenue. Implementing automated re-engagement triggers for key accounts will maximize LTV."
-  },
-  {
-    "objectID": "posts.html",
-    "href": "posts.html",
-    "title": "Posts",
-    "section": "",
-    "text": "Data Cleansing Pipeline: UK E-Commerce Transactions\n\n3 min\n\n\nPython\n\npandas\n\nData Cleansing\n\nData Visualization\n\nE-Commerce\n\n\n\nResolving missing customer IDs, system cancellation anomalies, and non-product line items across 540k retail transactions.\n\n\n\nSep 11, 2026\n\n\n\n\n\n\n\n\n\n\n\n\n\nPost With Code\n\n1 min\n\n\nnews\n\ncode\n\nanalysis\n\n\n\n\n\n\n\nSep 10, 2026\n\n\n\n\n\n\n\n\n\n\n\nUK E-Commerce Transactions: Part 1 - Data Cleansing Pipeline\n\n5 min\n\n\nPython\n\npandas\n\nData Cleansing\n\nData Visualization\n\nE-Commerce\n\n\n\nResolving missing customer IDs, system cancellation anomalies, and non-product line items across 540k retail transactions.\n\n\n\nSep 9, 2026\n\n\n\n\n\n\n\n\n\n\n\nWelcome\n\n1 min\n\n\nnews\n\n\n\n\n\n\n\nSep 1, 2026\n\n\n\n\n\n\nNo matching items"
-  },
-  {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
-    "section": "",
-    "text": "Using real-world data sets, I’ll walk through the process of:\n\nCleaning data\nSetting up data pipelines\nReal-world insights through visualisations\n\nAll using the python ecosystem."
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Analysis by Fab",
-    "section": "",
-    "text": "Data Cleansing Pipeline: UK E-Commerce Transactions\n\n\n\nPython\n\npandas\n\nData Cleansing\n\nData Visualization\n\nE-Commerce\n\n\n\nResolving missing customer IDs, system cancellation anomalies, and non-product line items across 540k retail transactions.\n\n\n\n\n\nSep 11, 2026\n\n\nFab\n\n\n\n\n\n\n\n\n\n\n\n\nPost With Code\n\n\n\nnews\n\ncode\n\nanalysis\n\n\n\n\n\n\n\n\n\nSep 10, 2026\n\n\nHarlow Malloc\n\n\n\n\n\n\n\n\n\n\n\n\nUK E-Commerce Transactions: Part 1 - Data Cleansing Pipeline\n\n\n\nPython\n\npandas\n\nData Cleansing\n\nData Visualization\n\nE-Commerce\n\n\n\nResolving missing customer IDs, system cancellation anomalies, and non-product line items across 540k retail transactions.\n\n\n\n\n\nSep 9, 2026\n\n\nFab\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nSep 1, 2026\n\n\nFab\n\n\n\n\n\nNo matching items"
-  },
-  {
     "objectID": "posts/data-cleaning-project_part 1/index.html",
     "href": "posts/data-cleaning-project_part 1/index.html",
     "title": "UK E-Commerce Transactions: Part 1 - Data Cleansing Pipeline",
@@ -98,10 +42,59 @@
     "text": "Conclusion & Next steps\nPart 2 will explore:\n\nPlots of the data\nFeature Engineering"
   },
   {
-    "objectID": "posts/post-with-code/index.html",
-    "href": "posts/post-with-code/index.html",
-    "title": "Post With Code",
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Analysis by Fab",
     "section": "",
-    "text": "This is a post with executable code."
+    "text": "Data Cleansing Pipeline: UK E-Commerce Transactions\n\n\n\nPython\n\npandas\n\nData Cleansing\n\nData Visualization\n\nE-Commerce\n\n\n\nResolving missing customer IDs, system cancellation anomalies, and non-product line items across 540k retail transactions.\n\n\n\n\n\nSep 11, 2026\n\n\nFab\n\n\n\n\n\n\n\n\n\n\n\n\nUK E-Commerce Transactions: Part 1 - Data Cleansing Pipeline\n\n\n\nPython\n\npandas\n\nData Cleansing\n\nData Visualization\n\nE-Commerce\n\n\n\nResolving missing customer IDs, system cancellation anomalies, and non-product line items across 540k retail transactions.\n\n\n\n\n\nSep 9, 2026\n\n\nFab\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nSep 1, 2026\n\n\nFab\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "Using real-world data sets, I’ll walk through the process of:\n\nCleaning data\nSetting up data pipelines\nReal-world insights through visualisations\n\nAll using the python ecosystem."
+  },
+  {
+    "objectID": "posts.html",
+    "href": "posts.html",
+    "title": "Posts",
+    "section": "",
+    "text": "Data Cleansing Pipeline: UK E-Commerce Transactions\n\n3 min\n\n\nPython\n\npandas\n\nData Cleansing\n\nData Visualization\n\nE-Commerce\n\n\n\nResolving missing customer IDs, system cancellation anomalies, and non-product line items across 540k retail transactions.\n\n\n\nSep 11, 2026\n\n\n\n\n\n\n\n\n\n\n\nUK E-Commerce Transactions: Part 1 - Data Cleansing Pipeline\n\n5 min\n\n\nPython\n\npandas\n\nData Cleansing\n\nData Visualization\n\nE-Commerce\n\n\n\nResolving missing customer IDs, system cancellation anomalies, and non-product line items across 540k retail transactions.\n\n\n\nSep 9, 2026\n\n\n\n\n\n\n\n\n\n\n\nWelcome\n\n1 min\n\n\nnews\n\n\n\n\n\n\n\nSep 1, 2026\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "posts/data-cleaning-project_part 2/index.html",
+    "href": "posts/data-cleaning-project_part 2/index.html",
+    "title": "Data Cleansing Pipeline: UK E-Commerce Transactions",
+    "section": "",
+    "text": "Operational transaction logs often contain administrative entries, cancellations, and incomplete customer profiles that distort financial reporting. This project involved creating a data cleansing pipeline in Python for the UK Online Retail dataset (541,909 raw records).\n\n\n\nData Quality Restoration: Discarded 150,000+ noisy rows (~27.8% of the raw dataset), resolving 135k null CustomerID records and non-product fees (AMAZONFEE, POSTAGE).\nStorage Optimization: Converted raw CSV data into compressed Apache Parquet, reducing file footprint from ~48 MB to ~10 MB (80% compression).\nRevenue Integrity: Validated £8.91M in net revenue across 391,000 clean transactional line items."
+  },
+  {
+    "objectID": "posts/data-cleaning-project_part 2/index.html#executive-summary",
+    "href": "posts/data-cleaning-project_part 2/index.html#executive-summary",
+    "title": "Data Cleansing Pipeline: UK E-Commerce Transactions",
+    "section": "",
+    "text": "Operational transaction logs often contain administrative entries, cancellations, and incomplete customer profiles that distort financial reporting. This project involved creating a data cleansing pipeline in Python for the UK Online Retail dataset (541,909 raw records).\n\n\n\nData Quality Restoration: Discarded 150,000+ noisy rows (~27.8% of the raw dataset), resolving 135k null CustomerID records and non-product fees (AMAZONFEE, POSTAGE).\nStorage Optimization: Converted raw CSV data into compressed Apache Parquet, reducing file footprint from ~48 MB to ~10 MB (80% compression).\nRevenue Integrity: Validated £8.91M in net revenue across 391,000 clean transactional line items."
+  },
+  {
+    "objectID": "posts/data-cleaning-project_part 2/index.html#data-pipeline-implementation",
+    "href": "posts/data-cleaning-project_part 2/index.html#data-pipeline-implementation",
+    "title": "Data Cleansing Pipeline: UK E-Commerce Transactions",
+    "section": "Data Pipeline Implementation",
+    "text": "Data Pipeline Implementation\nWe load the necessary libraries and our cleaned Parquet dataset created by our modular Python pipeline.\n\n\nClick to toggle code\nfrom pathlib import Path\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport seaborn as sns\nimport plotly.express as px\n\n# Set global visual style\nsns.set_theme(style=\"whitegrid\", palette=\"muted\")\nplt.rcParams['font.sans-serif'] = 'DejaVu Sans'\n\n# Load cleaned Parquet dataset\ndf = pd.read_parquet(\"clean_online_retail.parquet\")\ndf['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'])\n\nprint(f\"Dataset successfully loaded: {len(df):,} rows across {df['Country'].nunique()} countries.\")\n\n\nDataset successfully loaded: 391,150 rows across 37 countries."
+  },
+  {
+    "objectID": "posts/data-cleaning-project_part 2/index.html#exploratory-data-analysis-visualizations",
+    "href": "posts/data-cleaning-project_part 2/index.html#exploratory-data-analysis-visualizations",
+    "title": "Data Cleansing Pipeline: UK E-Commerce Transactions",
+    "section": "Exploratory Data Analysis & Visualizations",
+    "text": "Exploratory Data Analysis & Visualizations\n\n1. Daily Revenue Trends & Q4 Seasonality\nBelow is the daily revenue trajectory across the entire year. Removing cancellation records (InvoiceNo starting with 'C') prevents negative price spikes from distorting trends.\n\n\nClick to toggle code\n# Aggregate daily revenue\ndaily_revenue = (\n    df.groupby(df['InvoiceDate'].dt.date)['TotalPrice']\n    .sum()\n    .reset_index()\n)\ndaily_revenue.columns = ['Date', 'Revenue']\n\n# Plot using Seaborn\nfig, ax = plt.subplots(figsize=(11, 4.5))\nsns.lineplot(data=daily_revenue, x='Date', y='Revenue', color='#1f77b4', linewidth=1.8, ax=ax)\n\nax.set_title(\"Daily Total Revenue (£) - UK Online Retail\", fontsize=14, fontweight='bold', pad=12)\nax.set_xlabel(\"Date\", fontsize=11)\nax.set_ylabel(\"Revenue (£)\", fontsize=11)\nax.yaxis.set_major_formatter('£{x:,.0f}')\n\nplt.tight_layout()\nplt.show()\n\n\n\n\n\n\n\n\n\n\n\n\n2. Top 10 Best-Selling Products by Revenue\nBy stripping out administrative non-product codes (like POSTAGE and BANK CHARGES), we isolate genuine consumer inventory demand.\n\n\nClick to toggle code\n# Top 10 products by total revenue\ntop_products = (\n    df.groupby('Description')['TotalPrice']\n    .sum()\n    .reset_index()\n    .sort_values(by='TotalPrice', ascending=False)\n    .head(10)\n)\n\n# Horizontal Bar Chart\nfig, ax = plt.subplots(figsize=(10, 5))\nsns.barplot(data=top_products, x='TotalPrice', y='Description', palette='Blues_r', ax=ax)\n\nax.set_title(\"Top 10 Products by Total Revenue\", fontsize=14, fontweight='bold', pad=12)\nax.set_xlabel(\"Total Sales (£)\", fontsize=11)\nax.set_ylabel(\"\", fontsize=11)\nax.xaxis.set_major_formatter('£{x:,.0f}')\n\nplt.tight_layout()\nplt.show()\n\n\nC:\\Users\\fabio\\AppData\\Local\\Temp\\ipykernel_59244\\2647198224.py:12: FutureWarning:\n\n\n\nPassing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `y` variable to `hue` and set `legend=False` for the same effect.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n3. Interactive International Market Breakdown\nQuarto natively supports interactive JavaScript plots using Plotly. Users can hover over bars to inspect exact revenue figures and transaction volumes per market outside the UK.\n\n\nClick to toggle code\n# Filter for international markets (excluding UK for visual clarity)\nintl_markets = (\n    df[df['Country'] != 'United Kingdom']\n    .groupby('Country')\n    .agg(\n        TotalRevenue=('TotalPrice', 'sum'),\n        TotalOrders=('InvoiceNo', 'nunique')\n    )\n    .reset_index()\n    .sort_values(by='TotalRevenue', ascending=False)\n    .head(15)\n)\n\n# Generate interactive Plotly horizontal bar chart\nfig = px.bar(\n    intl_markets,\n    x='TotalRevenue',\n    y='Country',\n    orientation='h',\n    title=\"&lt;b&gt;Top 15 International Markets (Excluding UK)&lt;/b&gt;\",\n    labels={'TotalRevenue': 'Total Revenue (£)', 'Country': 'Country'},\n    hover_data={'TotalOrders': ':,', 'TotalRevenue': ':£,.2f'},\n    color='TotalRevenue',\n    color_continuous_scale='Viridis'\n)\n\nfig.update_layout(\n    height=450,\n    yaxis={'categoryorder': 'total ascending'},\n    margin=dict(l=20, r=20, t=50, b=20)\n)\n\nfig.show()\n\n\n                                                \n\n\n\n\n\n4. Customer Lifetime Value (LTV) Distribution\nBy applying .transform(\"sum\") in pandas, we calculated total customer lifetime spend across all ~4,300 unique accounts.\n\n\nClick to toggle code\n# Calculate LTV per unique customer\ncustomer_ltv = (\n    df.groupby('CustomerID')['TotalPrice']\n    .sum()\n    .reset_index(name='LTV')\n)\n\n# Histogram with KDE overlay\nfig, ax = plt.subplots(figsize=(10, 4.5))\nsns.histplot(customer_ltv[customer_ltv['LTV'] &lt; 5000]['LTV'], bins=40, kde=True, color='#2ca02c', ax=ax)\n\nax.set_title(\"Customer Lifetime Value Distribution (LTV &lt; £5,000)\", fontsize=14, fontweight='bold', pad=12)\nax.set_xlabel(\"Customer LTV (£)\", fontsize=11)\nax.set_ylabel(\"Customer Count\", fontsize=11)\nax.xaxis.set_major_formatter('£{x:,.0f}')\n\nplt.tight_layout()\nplt.show()"
+  },
+  {
+    "objectID": "posts/data-cleaning-project_part 2/index.html#conclusion-recommendations",
+    "href": "posts/data-cleaning-project_part 2/index.html#conclusion-recommendations",
+    "title": "Data Cleansing Pipeline: UK E-Commerce Transactions",
+    "section": "Conclusion & Recommendations",
+    "text": "Conclusion & Recommendations\n\nAddress Non-Standard Entries at Ingestion: System cancellations (InvoiceNo with 'C') and fees should be routed to a dedicated accounting table rather than mixed into line-item sales logs.\nFocus Retention on High-LTV Accounts: The top 10% of customers generate over 60% of total revenue. Implementing automated re-engagement triggers for key accounts will maximize LTV."
   }
 ]

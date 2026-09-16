@@ -689,29 +689,6 @@ font-style: inherit;">'</span>)</span>
   <pubDate>Thu, 10 Sep 2026 23:00:00 GMT</pubDate>
 </item>
 <item>
-  <title>Post With Code</title>
-  <dc:creator>Harlow Malloc</dc:creator>
-  <link>https://fabiofabrizi.github.io/analysis-by-fab/posts/post-with-code/</link>
-  <description><![CDATA[ 
-
-
-
-
-
-
-<p>This is a post with executable code.</p>
-
-
-
- ]]></description>
-  <category>news</category>
-  <category>code</category>
-  <category>analysis</category>
-  <guid>https://fabiofabrizi.github.io/analysis-by-fab/posts/post-with-code/</guid>
-  <pubDate>Wed, 09 Sep 2026 23:00:00 GMT</pubDate>
-  <media:content url="https://fabiofabrizi.github.io/analysis-by-fab/posts/post-with-code/image.jpg" medium="image" type="image/jpeg"/>
-</item>
-<item>
   <title>UK E-Commerce Transactions: Part 1 - Data Cleansing Pipeline</title>
   <dc:creator>Fab </dc:creator>
   <link>https://fabiofabrizi.github.io/analysis-by-fab/posts/data-cleaning-project_part 1/</link>
