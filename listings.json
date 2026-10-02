@@ -2,16 +2,16 @@
   {
     "listing": "/index.html",
     "items": [
-      "/posts/data-cleaning-project_part 2/index.html",
-      "/posts/data-cleaning-project_part 1/index.html",
+      "/posts/data-cleaning-project_part-2/index.html",
+      "/posts/data-cleaning-project_part-1/index.html",
       "/posts/welcome/index.html"
     ]
   },
   {
     "listing": "/posts.html",
     "items": [
-      "/posts/data-cleaning-project_part 2/index.html",
-      "/posts/data-cleaning-project_part 1/index.html",
+      "/posts/data-cleaning-project_part-2/index.html",
+      "/posts/data-cleaning-project_part-1/index.html",
       "/posts/welcome/index.html"
     ]
   }
