@@ -1,0 +1,305 @@
+---
+title: "UK E-Commerce Transactions: Part 2 - Insights"
+description: "Feature Engineering, Visualisation and next steps."
+author: "Fab"
+date: "2026-09-11"
+categories: [Python, pandas, Data Visualization, E-Commerce]
+format:
+  html:
+    code-fold: show
+    code-summary: "Click to toggle code"
+    toc: true
+    toc-depth: 3
+---
+
+## Executive Summary
+
+Operational transaction logs often contain administrative entries, cancellations, and incomplete customer profiles that distort financial reporting. 
+This project involved creating a data cleansing pipeline in Python for the **UK Online Retail dataset** (541,909 raw records).
+
+### **Key Results & Business Impact**
+* **Data Quality Restoration:** Discarded **150,000+ noisy rows** (~27.8% of the raw dataset), resolving 135k null `CustomerID` records and non-product fees (`AMAZONFEE`, `POSTAGE`).
+* **Storage Optimization:** Converted raw CSV data into compressed **Apache Parquet**, reducing file footprint from **~48 MB to ~10 MB** (80% compression).
+* **Revenue Integrity:** Validated **£8.91M** in net revenue across 391,000 clean transactional line items.
+
+---
+
+## Data Pipeline Implementation
+
+We load the necessary libraries and our cleaned Parquet dataset created by our modular Python pipeline.
+
+```{python}
+from pathlib import Path
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import plotly.express as px
+
+# Set global visual style
+sns.set_theme(style="whitegrid", palette="muted")
+plt.rcParams['font.sans-serif'] = 'DejaVu Sans'
+
+# Load cleaned Parquet dataset
+df = pd.read_parquet("../data_dcp/clean_online_retail.parquet")
+df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'])
+
+print(f"Dataset successfully loaded: {len(df):,} rows across {df['Country'].nunique()} countries.")
+```
+
+---
+
+## Exploratory Data Analysis & Visualizations
+
+### Summary of the dataset from part 1
+
+```{python}
+def basic_info():
+    print(f"The dataset has {df.shape[0]} rows across {df.shape[1]} columns")
+
+    col_names = list(df.columns)
+
+    print(f"\nThe columns are:\n")
+    for c in col_names:
+        print(f"{c}")
+
+    print(f"\nThe data types of the columns are below")
+    print(df.dtypes)
+
+# Call the function
+basic_info()
+
+```
+
+---
+
+### 1. Total and Daily revenue
+
+```{python}
+# Calculate the total revenue
+df['TotalRevenue'] = df['UnitPrice']*df['Quantity']
+Total_spend = df.groupby('CustomerID')['TotalRevenue'].sum().reset_index()
+
+print("This is the Total spend by the customer")
+print(Total_spend)
+
+# Aggregate daily revenue
+daily_revenue = (
+    df.groupby(df['InvoiceDate'].dt.date)['TotalRevenue']
+    .sum()
+    .reset_index()
+)
+daily_revenue.columns = ['Date', 'Revenue']
+
+# Display first few rows as a formatted table
+print("This is a summary of the daily revenue")
+print(daily_revenue.head())
+
+```
+
+---
+
+### 2. Find the most recent purchases by customer ID
+
+
+
+```{python}
+# The datetime conversion shows the date and time of purchase.
+# To use only the date, extract date only
+df['InvoiceDay'] = df['InvoiceDate'].dt.date
+
+# Find the most recent purchases by Customer ID
+Recent_customer_purchase = df.groupby('CustomerID')['InvoiceDay'].max().reset_index()
+
+print(Recent_customer_purchase)
+
+# What's the most recent date in the dataset?
+Most_recent_date = df['InvoiceDay'].max()
+print(Most_recent_date)
+```
+
+---
+
+### 3. Recency, Frequency, Monetary Metrics
+
+Reference date will be one day after the latest purchase date in the dataset to check for recency.
+
+```{python}
+snapshot_date = df["InvoiceDate"].max() + pd.Timedelta(days=1)
+print("One day after last purchase date:")
+print(snapshot_date)
+
+# Aggregate per customer
+rfm = df.groupby("CustomerID").agg({
+    "InvoiceDate": lambda x: (snapshot_date - x.max()).days,  # Recency
+    "InvoiceNo": "nunique",                                  # Frequency (distinct orders)
+    "TotalRevenue": "sum"                                      # Monetary value
+}).reset_index()
+
+# Rename columns
+rfm.columns = ["CustomerID", "Recency", "Frequency", "Monetary"]
+
+```
+
+
+
+Recency: Lower recency (fewer days since last purchase) = higher score
+Frequency: Higher frequency = higher score
+Monetary: Higher spend = higher score
+```{python}
+
+rfm["R_Score"] = pd.qcut(rfm["Recency"], q=5, labels=[5, 4, 3, 2, 1])
+
+# F: Higher frequency = higher score
+# duplicates='drop' is useful if many customers have only 1 order
+rfm["F_Score"] = pd.qcut(rfm["Frequency"].rank(method="first"), q=5, labels=[1, 2, 3, 4, 5])
+
+# M: Higher spend = higher score
+rfm["M_Score"] = pd.qcut(rfm["Monetary"], q=5, labels=[1, 2, 3, 4, 5])
+
+# Combined RFM Score string (e.g., "555") and numeric sum
+rfm["RFM_Cell"] = rfm["R_Score"].astype(str) + rfm["F_Score"].astype(str) + rfm["M_Score"].astype(str)
+rfm["RFM_Score"] = rfm[["R_Score", "F_Score", "M_Score"]].astype(int).sum(axis=1)
+
+
+# Map scores to customer segments
+def segment_customer(row):
+    r, f = int(row["R_Score"]), int(row["F_Score"])
+    
+    if r >= 4 and f >= 4:
+        return "Champions"
+    elif r >= 3 and f >= 3:
+        return "Loyal Customers"
+    elif r >= 4 and f == 1:
+        return "New Customers"
+    elif r == 3 and f == 1:
+        return "Promising / Potential Loyalists"
+    elif r <= 2 and f >= 3:
+        return "At Risk / Need Attention"
+    elif r == 1 and f >= 4:
+        return "Can't Lose Them"
+    elif r <= 2 and f <= 2:
+        return "Hibernating / Lost"
+    else:
+        return "About to Sleep"
+
+rfm["Customer_Segment"] = rfm.apply(segment_customer, axis=1)
+
+segment_summary = rfm.groupby("Customer_Segment").agg(
+    Recency_Mean=("Recency", "mean"),
+    Frequency_Mean=("Frequency", "mean"),
+    Monetary_Mean=("Monetary", "mean"),
+    Customer_Count=("CustomerID", "count")
+).round(2).sort_values(by="Monetary_Mean", ascending=False)
+
+print(segment_summary)
+```
+
+---
+
+### 4. Plot data
+
+Plot the data that was generated.
+
+```{python}
+sns.set_theme(style="whitegrid")
+plt.rcParams.update({"font.size": 10})
+
+# 1. Aggregate segment metrics
+segment_data = (
+    rfm.groupby("Customer_Segment")
+    .agg(
+        Customer_Count=("CustomerID", "count"),
+        Total_Revenue=("Monetary", "sum")
+    )
+    .reset_index()
+    .sort_values(by="Total_Revenue", ascending=False)
+)
+
+# 2. Setup side-by-side subplot figures
+fig, axes = plt.subplots(1, 2, figsize=(16, 6))
+
+# Subplot A: Customer Count by Segment
+sns.barplot(
+    data=segment_data,
+    x="Customer_Count",
+    y="Customer_Segment",
+    hue="Customer_Segment",
+    legend=False,
+    palette="Blues_r",
+    ax=axes[0]
+)
+axes[0].set_title("Customer Volume by Segment", fontsize=14, pad=12)
+axes[0].set_xlabel("Number of Customers")
+axes[0].set_ylabel("")
+
+# Subplot B: Total Revenue by Segment
+sns.barplot(
+    data=segment_data,
+    x="Total_Revenue",
+    y="Customer_Segment",
+    hue="Customer_Segment",
+    legend=False,
+    palette="Greens_r",
+    ax=axes[1]
+)
+axes[1].set_title("Total Revenue (£) by Segment", fontsize=14, pad=12)
+axes[1].set_xlabel("Total Revenue (£)")
+axes[1].set_ylabel("")
+
+# Annotate values directly on bars for clear reading
+for ax in axes:
+    for container in ax.containers:
+        ax.bar_label(container, fmt="%.0f", padding=5)
+
+plt.tight_layout()
+plt.show()
+```
+
+Generate a treemap of the customer segments by spend. The treemap was generated by plotly and is interactive.
+
+```{python}
+treemap_data = (
+    rfm.groupby("Customer_Segment")
+    .agg(
+        Customer_Count=("CustomerID", "count"),
+        Total_Revenue=("Monetary", "sum")
+    )
+    .reset_index()
+    .sort_values(by="Total_Revenue", ascending=False)
+)
+
+# 2. Build interactive Plotly Treemap
+fig = px.treemap(
+    treemap_data,
+    path=["Customer_Segment"],
+    values="Total_Revenue",
+    color="Customer_Segment",
+    color_discrete_sequence=px.colors.qualitative.Set3,  # Or px.colors.diverging.Spectral
+    custom_data=["Customer_Count", "Total_Revenue"],
+    title="RFM Customer Segments Proportional to Total Revenue"
+)
+
+# 3. Format block labels and interactive hover tooltips
+fig.update_traces(
+    texttemplate="<b>%{label}</b><br>%{customdata[0]:,} buyers<br>£%{customdata[1]:,.0f}",
+    hovertemplate="<b>%{label}</b><br>Buyers: %{customdata[0]:,}<br>Total Revenue: £%{customdata[1]:,.0f}<extra></extra>",
+    textfont=dict(size=14)
+)
+
+fig.update_layout(
+    margin=dict(t=50, l=10, r=10, b=10),
+    title_font_size=18
+)
+
+fig.show()
+
+```
+
+
+---
+
+
+## Conclusion & Recommendations
+
+1. **Address Non-Standard Entries at Ingestion:** System cancellations (`InvoiceNo` with `'C'`) and fees should be routed to a dedicated accounting table rather than mixed into line-item sales logs.
+2. **Focus Retention on High-LTV Accounts:** The top 10% of customers generate over 60% of total revenue. Implementing automated re-engagement triggers for key accounts will maximize LTV.

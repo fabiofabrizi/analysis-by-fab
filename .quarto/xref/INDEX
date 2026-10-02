@@ -22,5 +22,11 @@
   },
   "posts.qmd": {
     "posts.html": "44f86ff1"
+  },
+  "posts/data-cleaning-project_part-1/index.qmd": {
+    "index.html": "2703d134"
+  },
+  "posts/data-cleaning-project_part-2/index.qmd": {
+    "index.html": "bf39366a"
   }
 }

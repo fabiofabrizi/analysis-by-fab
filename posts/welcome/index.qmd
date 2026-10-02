@@ -5,7 +5,7 @@ date: "2026-09-01"
 categories: [news]
 ---
 
-This is the first post in a Quarto blog. Welcome!
+This will be a blog about data analysis - the process and the methods used to (hopefully) give useful insights.
 
 ![](thumbnail.jpg)
 

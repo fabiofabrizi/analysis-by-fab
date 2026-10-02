@@ -12,9 +12,9 @@
 <generator>quarto-1.10.18</generator>
 <lastBuildDate>Thu, 10 Sep 2026 23:00:00 GMT</lastBuildDate>
 <item>
-  <title>Data Cleansing Pipeline: UK E-Commerce Transactions</title>
+  <title>UK E-Commerce Transactions: Part 2 - Insights</title>
   <dc:creator>Fab </dc:creator>
-  <link>https://fabiofabrizi.github.io/analysis-by-fab/posts/data-cleaning-project_part 2/</link>
+  <link>https://fabiofabrizi.github.io/analysis-by-fab/posts/data-cleaning-project_part-2/</link>
   <description><![CDATA[ 
 
 
@@ -38,7 +38,7 @@
 <section id="data-pipeline-implementation" class="level2">
 <h2 class="anchored" data-anchor-id="data-pipeline-implementation">Data Pipeline Implementation</h2>
 <p>We load the necessary libraries and our cleaned Parquet dataset created by our modular Python pipeline.</p>
-<div id="5918c493" class="cell" data-execution_count="1">
+<div id="0d45f5c6" class="cell" data-execution_count="2">
 <details open="" class="code-fold">
 <summary>Click to toggle code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
@@ -94,7 +94,7 @@ font-style: inherit;"># Load cleaned Parquet dataset</span></span>
 background-color: null;
 font-style: inherit;">=</span> pd.read_parquet(<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"clean_online_retail.parquet"</span>)</span>
+font-style: inherit;">"../data_dcp/clean_online_retail.parquet"</span>)</span>
 <span id="cb1-13">df[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'InvoiceDate'</span>] <span class="op" style="color: #5E5E5E;
@@ -128,407 +128,1182 @@ background-color: null;
 font-style: inherit;"> countries."</span>)</span></code></pre></div></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Dataset successfully loaded: 391,150 rows across 37 countries.</code></pre>
+<pre><code>Dataset successfully loaded: 396,337 rows across 37 countries.</code></pre>
 </div>
 </div>
 <hr>
 </section>
 <section id="exploratory-data-analysis-visualizations" class="level2">
 <h2 class="anchored" data-anchor-id="exploratory-data-analysis-visualizations">Exploratory Data Analysis &amp; Visualizations</h2>
-<section id="daily-revenue-trends-q4-seasonality" class="level3">
-<h3 class="anchored" data-anchor-id="daily-revenue-trends-q4-seasonality">1. Daily Revenue Trends &amp; Q4 Seasonality</h3>
-<p>Below is the daily revenue trajectory across the entire year. Removing cancellation records (<code>InvoiceNo</code> starting with <code>'C'</code>) prevents negative price spikes from distorting trends.</p>
-<div id="649501dd" class="cell" data-execution_count="2">
+<section id="summary-of-the-dataset-from-part-1" class="level3">
+<h3 class="anchored" data-anchor-id="summary-of-the-dataset-from-part-1">Summary of the dataset from part 1</h3>
+<div id="1edb18ec" class="cell" data-execution_count="3">
 <details open="" class="code-fold">
 <summary>Click to toggle code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> basic_info():</span>
+<span id="cb3-2">    <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"The dataset has </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>df<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>shape[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> rows across </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>df<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>shape[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> columns"</span>)</span>
+<span id="cb3-3"></span>
+<span id="cb3-4">    col_names <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>(df.columns)</span>
+<span id="cb3-5"></span>
+<span id="cb3-6">    <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">The columns are:</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb3-7">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> c <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> col_names:</span>
+<span id="cb3-8">        <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>c<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb3-9"></span>
+<span id="cb3-10">    <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">The data types of the columns are below"</span>)</span>
+<span id="cb3-11">    <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(df.dtypes)</span>
+<span id="cb3-12"></span>
+<span id="cb3-13"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Call the function</span></span>
+<span id="cb3-14">basic_info()</span></code></pre></div></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>The dataset has 396337 rows across 8 columns
+
+The columns are:
+
+InvoiceNo
+StockCode
+Description
+Quantity
+InvoiceDate
+UnitPrice
+CustomerID
+Country
+
+The data types of the columns are below
+InvoiceNo                 str
+StockCode                 str
+Description               str
+Quantity                int64
+InvoiceDate    datetime64[us]
+UnitPrice             float64
+CustomerID            float64
+Country                   str
+dtype: object</code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="total-and-daily-revenue" class="level3">
+<h3 class="anchored" data-anchor-id="total-and-daily-revenue">1. Total and Daily revenue</h3>
+<div id="f16901a3" class="cell" data-execution_count="4">
+<details open="" class="code-fold">
+<summary>Click to toggle code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Calculate the total revenue</span></span>
+<span id="cb5-2">df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'TotalRevenue'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'UnitPrice'</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Quantity'</span>]</span>
+<span id="cb5-3">Total_spend <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> df.groupby(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'CustomerID'</span>)[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'TotalRevenue'</span>].<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">sum</span>().reset_index()</span>
+<span id="cb5-4"></span>
+<span id="cb5-5"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"This is the Total spend by the customer"</span>)</span>
+<span id="cb5-6"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(Total_spend)</span>
+<span id="cb5-7"></span>
+<span id="cb5-8"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Aggregate daily revenue</span></span>
-<span id="cb3-2">daily_revenue <span class="op" style="color: #5E5E5E;
+<span id="cb5-9">daily_revenue <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> (</span>
-<span id="cb3-3">    df.groupby(df[<span class="st" style="color: #20794D;
+<span id="cb5-10">    df.groupby(df[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'InvoiceDate'</span>].dt.date)[<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">'TotalPrice'</span>]</span>
-<span id="cb3-4">    .<span class="bu" style="color: null;
+font-style: inherit;">'TotalRevenue'</span>]</span>
+<span id="cb5-11">    .<span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">sum</span>()</span>
-<span id="cb3-5">    .reset_index()</span>
-<span id="cb3-6">)</span>
-<span id="cb3-7">daily_revenue.columns <span class="op" style="color: #5E5E5E;
+<span id="cb5-12">    .reset_index()</span>
+<span id="cb5-13">)</span>
+<span id="cb5-14">daily_revenue.columns <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Date'</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Revenue'</span>]</span>
-<span id="cb3-8"></span>
-<span id="cb3-9"><span class="co" style="color: #5E5E5E;
+<span id="cb5-15"></span>
+<span id="cb5-16"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># Plot using Seaborn</span></span>
-<span id="cb3-10">fig, ax <span class="op" style="color: #5E5E5E;
+font-style: inherit;"># Display first few rows as a formatted table</span></span>
+<span id="cb5-17"><span class="bu" style="color: null;
 background-color: null;
-font-style: inherit;">=</span> plt.subplots(figsize<span class="op" style="color: #5E5E5E;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">=</span>(<span class="dv" style="color: #AD0000;
+font-style: inherit;">"This is a summary of the daily revenue"</span>)</span>
+<span id="cb5-18"><span class="bu" style="color: null;
 background-color: null;
-font-style: inherit;">11</span>, <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4.5</span>))</span>
-<span id="cb3-11">sns.lineplot(data<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>daily_revenue, x<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Date'</span>, y<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Revenue'</span>, color<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'#1f77b4'</span>, linewidth<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1.8</span>, ax<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>ax)</span>
-<span id="cb3-12"></span>
-<span id="cb3-13">ax.set_title(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Daily Total Revenue (£) - UK Online Retail"</span>, fontsize<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">14</span>, fontweight<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'bold'</span>, pad<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">12</span>)</span>
-<span id="cb3-14">ax.set_xlabel(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Date"</span>, fontsize<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">11</span>)</span>
-<span id="cb3-15">ax.set_ylabel(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Revenue (£)"</span>, fontsize<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">11</span>)</span>
-<span id="cb3-16">ax.yaxis.set_major_formatter(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'£</span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">{x:,.0f}</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'</span>)</span>
-<span id="cb3-17"></span>
-<span id="cb3-18">plt.tight_layout()</span>
-<span id="cb3-19">plt.show()</span></code></pre></div></div>
+font-style: inherit;">print</span>(daily_revenue.head())</span></code></pre></div></div>
 </details>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="https://fabiofabrizi.github.io/analysis-by-fab/posts/data-cleaning-project_part 2/index_files/figure-html/cell-3-output-1.png" width="1033" height="417" class="figure-img"></p>
-</figure>
-</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>This is the Total spend by the customer
+      CustomerID  TotalRevenue
+0        12346.0      77183.60
+1        12347.0       4310.00
+2        12348.0       1437.24
+3        12349.0       1457.55
+4        12350.0        294.40
+...          ...           ...
+4329     18280.0        180.60
+4330     18281.0         80.82
+4331     18282.0        178.05
+4332     18283.0       2088.93
+4333     18287.0       1837.28
+
+[4334 rows x 2 columns]
+This is a summary of the daily revenue
+         Date   Revenue
+0  2010-12-01  46219.29
+1  2010-12-02  47283.53
+2  2010-12-03  23576.01
+3  2010-12-05  31315.64
+4  2010-12-06  31014.21</code></pre>
 </div>
 </div>
 <hr>
 </section>
-<section id="top-10-best-selling-products-by-revenue" class="level3">
-<h3 class="anchored" data-anchor-id="top-10-best-selling-products-by-revenue">2. Top 10 Best-Selling Products by Revenue</h3>
-<p>By stripping out administrative non-product codes (like <code>POSTAGE</code> and <code>BANK CHARGES</code>), we isolate genuine consumer inventory demand.</p>
-<div id="8fbcbcda" class="cell" data-execution_count="3">
+<section id="find-the-most-recent-purchases-by-customer-id" class="level3">
+<h3 class="anchored" data-anchor-id="find-the-most-recent-purchases-by-customer-id">2. Find the most recent purchases by customer ID</h3>
+<div id="b001735a" class="cell" data-execution_count="5">
 <details open="" class="code-fold">
 <summary>Click to toggle code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><span class="co" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># Top 10 products by total revenue</span></span>
-<span id="cb4-2">top_products <span class="op" style="color: #5E5E5E;
+font-style: inherit;"># The datetime conversion shows the date and time of purchase.</span></span>
+<span id="cb7-2"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">=</span> (</span>
-<span id="cb4-3">    df.groupby(<span class="st" style="color: #20794D;
+font-style: inherit;"># To use only the date, extract date only</span></span>
+<span id="cb7-3">df[<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">'Description'</span>)[<span class="st" style="color: #20794D;
+font-style: inherit;">'InvoiceDay'</span>] <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">'TotalPrice'</span>]</span>
-<span id="cb4-4">    .<span class="bu" style="color: null;
+font-style: inherit;">=</span> df[<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">sum</span>()</span>
-<span id="cb4-5">    .reset_index()</span>
-<span id="cb4-6">    .sort_values(by<span class="op" style="color: #5E5E5E;
+font-style: inherit;">'InvoiceDate'</span>].dt.date</span>
+<span id="cb7-4"></span>
+<span id="cb7-5"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
+font-style: inherit;"># Find the most recent purchases by Customer ID</span></span>
+<span id="cb7-6">Recent_customer_purchase <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">'TotalPrice'</span>, ascending<span class="op" style="color: #5E5E5E;
+font-style: inherit;">=</span> df.groupby(<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">=</span><span class="va" style="color: #111111;
+font-style: inherit;">'CustomerID'</span>)[<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">False</span>)</span>
-<span id="cb4-7">    .head(<span class="dv" style="color: #AD0000;
+font-style: inherit;">'InvoiceDay'</span>].<span class="bu" style="color: null;
 background-color: null;
-font-style: inherit;">10</span>)</span>
-<span id="cb4-8">)</span>
-<span id="cb4-9"></span>
-<span id="cb4-10"><span class="co" style="color: #5E5E5E;
+font-style: inherit;">max</span>().reset_index()</span>
+<span id="cb7-7"></span>
+<span id="cb7-8"><span class="bu" style="color: null;
 background-color: null;
-font-style: inherit;"># Horizontal Bar Chart</span></span>
-<span id="cb4-11">fig, ax <span class="op" style="color: #5E5E5E;
+font-style: inherit;">print</span>(Recent_customer_purchase)</span>
+<span id="cb7-9"></span>
+<span id="cb7-10"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">=</span> plt.subplots(figsize<span class="op" style="color: #5E5E5E;
+font-style: inherit;"># What's the most recent date in the dataset?</span></span>
+<span id="cb7-11">Most_recent_date <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">=</span>(<span class="dv" style="color: #AD0000;
+font-style: inherit;">=</span> df[<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">10</span>, <span class="dv" style="color: #AD0000;
+font-style: inherit;">'InvoiceDay'</span>].<span class="bu" style="color: null;
 background-color: null;
-font-style: inherit;">5</span>))</span>
-<span id="cb4-12">sns.barplot(data<span class="op" style="color: #5E5E5E;
+font-style: inherit;">max</span>()</span>
+<span id="cb7-12"><span class="bu" style="color: null;
 background-color: null;
-font-style: inherit;">=</span>top_products, x<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'TotalPrice'</span>, y<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Description'</span>, palette<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Blues_r'</span>, ax<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>ax)</span>
-<span id="cb4-13"></span>
-<span id="cb4-14">ax.set_title(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Top 10 Products by Total Revenue"</span>, fontsize<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">14</span>, fontweight<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'bold'</span>, pad<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">12</span>)</span>
-<span id="cb4-15">ax.set_xlabel(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Total Sales (£)"</span>, fontsize<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">11</span>)</span>
-<span id="cb4-16">ax.set_ylabel(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">""</span>, fontsize<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">11</span>)</span>
-<span id="cb4-17">ax.xaxis.set_major_formatter(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'£</span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">{x:,.0f}</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'</span>)</span>
-<span id="cb4-18"></span>
-<span id="cb4-19">plt.tight_layout()</span>
-<span id="cb4-20">plt.show()</span></code></pre></div></div>
+font-style: inherit;">print</span>(Most_recent_date)</span></code></pre></div></div>
 </details>
-<div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\fabio\AppData\Local\Temp\ipykernel_59244\2647198224.py:12: FutureWarning:
+<div class="cell-output cell-output-stdout">
+<pre><code>      CustomerID  InvoiceDay
+0        12346.0  2011-01-18
+1        12347.0  2011-12-07
+2        12348.0  2011-09-25
+3        12349.0  2011-11-21
+4        12350.0  2011-02-02
+...          ...         ...
+4329     18280.0  2011-03-07
+4330     18281.0  2011-06-12
+4331     18282.0  2011-12-02
+4332     18283.0  2011-12-06
+4333     18287.0  2011-10-28
 
-
-
-Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `y` variable to `hue` and set `legend=False` for the same effect.
-
-</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="https://fabiofabrizi.github.io/analysis-by-fab/posts/data-cleaning-project_part 2/index_files/figure-html/cell-4-output-2.png" width="939" height="465" class="figure-img"></p>
-</figure>
-</div>
+[4334 rows x 2 columns]
+2011-12-09</code></pre>
 </div>
 </div>
 <hr>
 </section>
-<section id="interactive-international-market-breakdown" class="level3">
-<h3 class="anchored" data-anchor-id="interactive-international-market-breakdown">3. Interactive International Market Breakdown</h3>
-<p>Quarto natively supports interactive JavaScript plots using <strong>Plotly</strong>. Users can hover over bars to inspect exact revenue figures and transaction volumes per market outside the UK.</p>
-<div id="e959a4dd" class="cell" data-execution_count="4">
+<section id="recency-frequency-monetary-metrics" class="level3">
+<h3 class="anchored" data-anchor-id="recency-frequency-monetary-metrics">3. Recency, Frequency, Monetary Metrics</h3>
+<p>Reference date will be one day after the latest purchase date in the dataset to check for recency.</p>
+<div id="88c9317f" class="cell" data-execution_count="6">
 <details open="" class="code-fold">
 <summary>Click to toggle code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><span class="co" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1">snapshot_date <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># Filter for international markets (excluding UK for visual clarity)</span></span>
-<span id="cb6-2">intl_markets <span class="op" style="color: #5E5E5E;
+font-style: inherit;">=</span> df[<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">=</span> (</span>
-<span id="cb6-3">    df[df[<span class="st" style="color: #20794D;
+font-style: inherit;">"InvoiceDate"</span>].<span class="bu" style="color: null;
 background-color: null;
-font-style: inherit;">'Country'</span>] <span class="op" style="color: #5E5E5E;
+font-style: inherit;">max</span>() <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">!=</span> <span class="st" style="color: #20794D;
+font-style: inherit;">+</span> pd.Timedelta(days<span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">'United Kingdom'</span>]</span>
-<span id="cb6-4">    .groupby(<span class="st" style="color: #20794D;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">'Country'</span>)</span>
-<span id="cb6-5">    .agg(</span>
-<span id="cb6-6">        TotalRevenue<span class="op" style="color: #5E5E5E;
+font-style: inherit;">1</span>)</span>
+<span id="cb9-2"><span class="bu" style="color: null;
 background-color: null;
-font-style: inherit;">=</span>(<span class="st" style="color: #20794D;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">'TotalPrice'</span>, <span class="st" style="color: #20794D;
+font-style: inherit;">"One day after last purchase date:"</span>)</span>
+<span id="cb9-3"><span class="bu" style="color: null;
 background-color: null;
-font-style: inherit;">'sum'</span>),</span>
-<span id="cb6-7">        TotalOrders<span class="op" style="color: #5E5E5E;
+font-style: inherit;">print</span>(snapshot_date)</span>
+<span id="cb9-4"></span>
+<span id="cb9-5"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">=</span>(<span class="st" style="color: #20794D;
+font-style: inherit;"># Aggregate per customer</span></span>
+<span id="cb9-6">rfm <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">'InvoiceNo'</span>, <span class="st" style="color: #20794D;
+font-style: inherit;">=</span> df.groupby(<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">'nunique'</span>)</span>
-<span id="cb6-8">    )</span>
-<span id="cb6-9">    .reset_index()</span>
-<span id="cb6-10">    .sort_values(by<span class="op" style="color: #5E5E5E;
+font-style: inherit;">"CustomerID"</span>).agg({</span>
+<span id="cb9-7">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"InvoiceDate"</span>: <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> x: (snapshot_date <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> x.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">max</span>()).days,  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Recency</span></span>
+<span id="cb9-8">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"InvoiceNo"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"nunique"</span>,                                  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Frequency (distinct orders)</span></span>
+<span id="cb9-9">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"TotalRevenue"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sum"</span>                                      <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Monetary value</span></span>
+<span id="cb9-10">}).reset_index()</span>
+<span id="cb9-11"></span>
+<span id="cb9-12"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Rename columns</span></span>
+<span id="cb9-13">rfm.columns <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"CustomerID"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Recency"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Frequency"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Monetary"</span>]</span></code></pre></div></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>One day after last purchase date:
+2011-12-10 12:50:00</code></pre>
+</div>
+</div>
+<p>Recency: Lower recency (fewer days since last purchase) = higher score Frequency: Higher frequency = higher score Monetary: Higher spend = higher score</p>
+<div id="53afb466" class="cell" data-execution_count="7">
+<details open="" class="code-fold">
+<summary>Click to toggle code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1">rfm[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"R_Score"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.qcut(rfm[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Recency"</span>], q<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, labels<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>])</span>
+<span id="cb11-2"></span>
+<span id="cb11-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># F: Higher frequency = higher score</span></span>
+<span id="cb11-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># duplicates='drop' is useful if many customers have only 1 order</span></span>
+<span id="cb11-5">rfm[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"F_Score"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.qcut(rfm[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Frequency"</span>].rank(method<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">'TotalRevenue'</span>, ascending<span class="op" style="color: #5E5E5E;
+font-style: inherit;">"first"</span>), q<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, labels<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>])</span>
+<span id="cb11-6"></span>
+<span id="cb11-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># M: Higher spend = higher score</span></span>
+<span id="cb11-8">rfm[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"M_Score"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.qcut(rfm[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Monetary"</span>], q<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, labels<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>])</span>
+<span id="cb11-9"></span>
+<span id="cb11-10"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Combined RFM Score string (e.g., "555") and numeric sum</span></span>
+<span id="cb11-11">rfm[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"RFM_Cell"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> rfm[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"R_Score"</span>].astype(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> rfm[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"F_Score"</span>].astype(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> rfm[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"M_Score"</span>].astype(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span>)</span>
+<span id="cb11-12">rfm[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"RFM_Score"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> rfm[[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"R_Score"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"F_Score"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"M_Score"</span>]].astype(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>).<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">sum</span>(axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb11-13"></span>
+<span id="cb11-14"></span>
+<span id="cb11-15"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Map scores to customer segments</span></span>
+<span id="cb11-16"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> segment_customer(row):</span>
+<span id="cb11-17">    r, f <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>(row[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"R_Score"</span>]), <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>(row[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"F_Score"</span>])</span>
+<span id="cb11-18">    </span>
+<span id="cb11-19">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> r <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">and</span> f <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>:</span>
+<span id="cb11-20">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Champions"</span></span>
+<span id="cb11-21">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">elif</span> r <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">and</span> f <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>:</span>
+<span id="cb11-22">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Loyal Customers"</span></span>
+<span id="cb11-23">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">elif</span> r <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">and</span> f <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>:</span>
+<span id="cb11-24">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"New Customers"</span></span>
+<span id="cb11-25">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">elif</span> r <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">and</span> f <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>:</span>
+<span id="cb11-26">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Promising / Potential Loyalists"</span></span>
+<span id="cb11-27">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">elif</span> r <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">and</span> f <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>:</span>
+<span id="cb11-28">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"At Risk / Need Attention"</span></span>
+<span id="cb11-29">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">elif</span> r <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">and</span> f <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>:</span>
+<span id="cb11-30">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Can't Lose Them"</span></span>
+<span id="cb11-31">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">elif</span> r <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">and</span> f <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>:</span>
+<span id="cb11-32">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Hibernating / Lost"</span></span>
+<span id="cb11-33">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span>:</span>
+<span id="cb11-34">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"About to Sleep"</span></span>
+<span id="cb11-35"></span>
+<span id="cb11-36">rfm[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Customer_Segment"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> rfm.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">apply</span>(segment_customer, axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb11-37"></span>
+<span id="cb11-38">segment_summary <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> rfm.groupby(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Customer_Segment"</span>).agg(</span>
+<span id="cb11-39">    Recency_Mean<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Recency"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mean"</span>),</span>
+<span id="cb11-40">    Frequency_Mean<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Frequency"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mean"</span>),</span>
+<span id="cb11-41">    Monetary_Mean<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Monetary"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mean"</span>),</span>
+<span id="cb11-42">    Customer_Count<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"CustomerID"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"count"</span>)</span>
+<span id="cb11-43">).<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">round</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>).sort_values(by<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Monetary_Mean"</span>, ascending<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="va" style="color: #111111;
 background-color: null;
 font-style: inherit;">False</span>)</span>
-<span id="cb6-11">    .head(<span class="dv" style="color: #AD0000;
+<span id="cb11-44"></span>
+<span id="cb11-45"><span class="bu" style="color: null;
 background-color: null;
-font-style: inherit;">15</span>)</span>
-<span id="cb6-12">)</span>
-<span id="cb6-13"></span>
-<span id="cb6-14"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Generate interactive Plotly horizontal bar chart</span></span>
-<span id="cb6-15">fig <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> px.bar(</span>
-<span id="cb6-16">    intl_markets,</span>
-<span id="cb6-17">    x<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'TotalRevenue'</span>,</span>
-<span id="cb6-18">    y<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Country'</span>,</span>
-<span id="cb6-19">    orientation<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'h'</span>,</span>
-<span id="cb6-20">    title<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"&lt;b&gt;Top 15 International Markets (Excluding UK)&lt;/b&gt;"</span>,</span>
-<span id="cb6-21">    labels<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>{<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'TotalRevenue'</span>: <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Total Revenue (£)'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Country'</span>: <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Country'</span>},</span>
-<span id="cb6-22">    hover_data<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>{<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'TotalOrders'</span>: <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">':,'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'TotalRevenue'</span>: <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">':£,.2f'</span>},</span>
-<span id="cb6-23">    color<span class="op" style="color: #5E5E5E;
+font-style: inherit;">print</span>(segment_summary)</span></code></pre></div></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                 Recency_Mean  Frequency_Mean  Monetary_Mean  \
+Customer_Segment                                                               
+Champions                               13.27            9.94        5142.43   
+Loyal Customers                         38.15            3.62        1595.01   
+At Risk / Need Attention               152.90            3.39        1233.49   
+About to Sleep                          36.23            1.34         500.73   
+Hibernating / Lost                     218.35            1.10         478.72   
+Promising / Potential Loyalists         53.85            1.00         442.57   
+New Customers                           18.54            1.00         353.93   
+
+                                 Customer_Count  
+Customer_Segment                                 
+Champions                                  1136  
+Loyal Customers                             827  
+At Risk / Need Attention                    637  
+About to Sleep                              360  
+Hibernating / Lost                         1068  
+Promising / Potential Loyalists             165  
+New Customers                               141  </code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="plot-data" class="level3">
+<h3 class="anchored" data-anchor-id="plot-data">4. Plot data</h3>
+<p>Plot the data that was generated.</p>
+<div id="eb4eaf8a" class="cell" data-execution_count="8">
+<details open="" class="code-fold">
+<summary>Click to toggle code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1">sns.set_theme(style<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">'TotalRevenue'</span>,</span>
-<span id="cb6-24">    color_continuous_scale<span class="op" style="color: #5E5E5E;
+font-style: inherit;">"whitegrid"</span>)</span>
+<span id="cb13-2">plt.rcParams.update({<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"font.size"</span>: <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>})</span>
+<span id="cb13-3"></span>
+<span id="cb13-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 1. Aggregate segment metrics</span></span>
+<span id="cb13-5">segment_data <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (</span>
+<span id="cb13-6">    rfm.groupby(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Customer_Segment"</span>)</span>
+<span id="cb13-7">    .agg(</span>
+<span id="cb13-8">        Customer_Count<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"CustomerID"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"count"</span>),</span>
+<span id="cb13-9">        Total_Revenue<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Monetary"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sum"</span>)</span>
+<span id="cb13-10">    )</span>
+<span id="cb13-11">    .reset_index()</span>
+<span id="cb13-12">    .sort_values(by<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">'Viridis'</span></span>
-<span id="cb6-25">)</span>
-<span id="cb6-26"></span>
-<span id="cb6-27">fig.update_layout(</span>
-<span id="cb6-28">    height<span class="op" style="color: #5E5E5E;
+font-style: inherit;">"Total_Revenue"</span>, ascending<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>)</span>
+<span id="cb13-13">)</span>
+<span id="cb13-14"></span>
+<span id="cb13-15"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 2. Setup side-by-side subplot figures</span></span>
+<span id="cb13-16">fig, axes <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> plt.subplots(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, figsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">16</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>))</span>
+<span id="cb13-17"></span>
+<span id="cb13-18"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Subplot A: Customer Count by Segment</span></span>
+<span id="cb13-19">sns.barplot(</span>
+<span id="cb13-20">    data<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>segment_data,</span>
+<span id="cb13-21">    x<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Customer_Count"</span>,</span>
+<span id="cb13-22">    y<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Customer_Segment"</span>,</span>
+<span id="cb13-23">    hue<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Customer_Segment"</span>,</span>
+<span id="cb13-24">    legend<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>,</span>
+<span id="cb13-25">    palette<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Blues_r"</span>,</span>
+<span id="cb13-26">    ax<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]</span>
+<span id="cb13-27">)</span>
+<span id="cb13-28">axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>].set_title(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Customer Volume by Segment"</span>, fontsize<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">450</span>,</span>
-<span id="cb6-29">    yaxis<span class="op" style="color: #5E5E5E;
+font-style: inherit;">14</span>, pad<span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">=</span>{<span class="st" style="color: #20794D;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">'categoryorder'</span>: <span class="st" style="color: #20794D;
+font-style: inherit;">12</span>)</span>
+<span id="cb13-29">axes[<span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">'total ascending'</span>},</span>
-<span id="cb6-30">    margin<span class="op" style="color: #5E5E5E;
+font-style: inherit;">0</span>].set_xlabel(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Number of Customers"</span>)</span>
+<span id="cb13-30">axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>].set_ylabel(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>)</span>
+<span id="cb13-31"></span>
+<span id="cb13-32"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Subplot B: Total Revenue by Segment</span></span>
+<span id="cb13-33">sns.barplot(</span>
+<span id="cb13-34">    data<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>segment_data,</span>
+<span id="cb13-35">    x<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Total_Revenue"</span>,</span>
+<span id="cb13-36">    y<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Customer_Segment"</span>,</span>
+<span id="cb13-37">    hue<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Customer_Segment"</span>,</span>
+<span id="cb13-38">    legend<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>,</span>
+<span id="cb13-39">    palette<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Greens_r"</span>,</span>
+<span id="cb13-40">    ax<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]</span>
+<span id="cb13-41">)</span>
+<span id="cb13-42">axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>].set_title(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Total Revenue (£) by Segment"</span>, fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">14</span>, pad<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>)</span>
+<span id="cb13-43">axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>].set_xlabel(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Total Revenue (£)"</span>)</span>
+<span id="cb13-44">axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>].set_ylabel(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>)</span>
+<span id="cb13-45"></span>
+<span id="cb13-46"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Annotate values directly on bars for clear reading</span></span>
+<span id="cb13-47"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> ax <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> axes:</span>
+<span id="cb13-48">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> container <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> ax.containers:</span>
+<span id="cb13-49">        ax.bar_label(container, fmt<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"%.0f"</span>, padding<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span>
+<span id="cb13-50"></span>
+<span id="cb13-51">plt.tight_layout()</span>
+<span id="cb13-52">plt.show()</span></code></pre></div></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://fabiofabrizi.github.io/analysis-by-fab/posts/data-cleaning-project_part-2/index_files/figure-html/cell-8-output-1.png" width="1527" height="565" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Generate a treemap of the customer segments by spend. The treemap was generated by plotly and is interactive.</p>
+<div id="6c2cf728" class="cell" data-execution_count="9">
+<details open="" class="code-fold">
+<summary>Click to toggle code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1">treemap_data <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (</span>
+<span id="cb14-2">    rfm.groupby(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Customer_Segment"</span>)</span>
+<span id="cb14-3">    .agg(</span>
+<span id="cb14-4">        Customer_Count<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"CustomerID"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"count"</span>),</span>
+<span id="cb14-5">        Total_Revenue<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Monetary"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sum"</span>)</span>
+<span id="cb14-6">    )</span>
+<span id="cb14-7">    .reset_index()</span>
+<span id="cb14-8">    .sort_values(by<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Total_Revenue"</span>, ascending<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>)</span>
+<span id="cb14-9">)</span>
+<span id="cb14-10"></span>
+<span id="cb14-11"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 2. Build interactive Plotly Treemap</span></span>
+<span id="cb14-12">fig <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> px.treemap(</span>
+<span id="cb14-13">    treemap_data,</span>
+<span id="cb14-14">    path<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Customer_Segment"</span>],</span>
+<span id="cb14-15">    values<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Total_Revenue"</span>,</span>
+<span id="cb14-16">    color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Customer_Segment"</span>,</span>
+<span id="cb14-17">    color_discrete_sequence<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>px.colors.qualitative.Set3,  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Or px.colors.diverging.Spectral</span></span>
+<span id="cb14-18">    custom_data<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Customer_Count"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Total_Revenue"</span>],</span>
+<span id="cb14-19">    title<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"RFM Customer Segments Proportional to Total Revenue"</span></span>
+<span id="cb14-20">)</span>
+<span id="cb14-21"></span>
+<span id="cb14-22"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 3. Format block labels and interactive hover tooltips</span></span>
+<span id="cb14-23">fig.update_traces(</span>
+<span id="cb14-24">    texttemplate<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"&lt;b&gt;%</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{label}</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">&lt;/b&gt;&lt;br&gt;%</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{customdata[0]:,}</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> buyers&lt;br&gt;£%</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{customdata[1]:,.0f}</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb14-25">    hovertemplate<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"&lt;b&gt;%</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{label}</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">&lt;/b&gt;&lt;br&gt;Buyers: %</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{customdata[0]:,}</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">&lt;br&gt;Total Revenue: £%</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{customdata[1]:,.0f}</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">&lt;extra&gt;&lt;/extra&gt;"</span>,</span>
+<span id="cb14-26">    textfont<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="bu" style="color: null;
 background-color: null;
-font-style: inherit;">dict</span>(l<span class="op" style="color: #5E5E5E;
+font-style: inherit;">dict</span>(size<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">20</span>, r<span class="op" style="color: #5E5E5E;
+font-style: inherit;">14</span>)</span>
+<span id="cb14-27">)</span>
+<span id="cb14-28"></span>
+<span id="cb14-29">fig.update_layout(</span>
+<span id="cb14-30">    margin<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">dict</span>(t<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">20</span>, t<span class="op" style="color: #5E5E5E;
+font-style: inherit;">50</span>, l<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">50</span>, b<span class="op" style="color: #5E5E5E;
+font-style: inherit;">10</span>, r<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">20</span>)</span>
-<span id="cb6-31">)</span>
-<span id="cb6-32"></span>
-<span id="cb6-33">fig.show()</span></code></pre></div></div>
+font-style: inherit;">10</span>, b<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>),</span>
+<span id="cb14-31">    title_font_size<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">18</span></span>
+<span id="cb14-32">)</span>
+<span id="cb14-33"></span>
+<span id="cb14-34">fig.show()</span></code></pre></div></div>
 </details>
 <div class="cell-output cell-output-display">
-<div>                            <div id="06f86cef-66d7-4ba9-86ef-ca99e011293c" class="plotly-graph-div" style="height:450px; width:100%;"></div>            <script type="text/javascript">                require(["plotly"], function(Plotly) {                    window.PLOTLYENV=window.PLOTLYENV || {};                                    if (document.getElementById("06f86cef-66d7-4ba9-86ef-ca99e011293c")) {                    Plotly.newPlot(                        "06f86cef-66d7-4ba9-86ef-ca99e011293c",                        [{"alignmentgroup":"True","customdata":[[93],[256],[443],[379],[56],[88],[47],[19],[98],[34],[32],[49],[25],[40],[18]],"hovertemplate":"Total Revenue (£)=%{marker.color:£,.2f}\u003cbr\u003eCountry=%{y}\u003cbr\u003eTotalOrders=%{customdata[0]:,}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":[283889.34,257013.12,205381.15,183801.94,138103.81,55706.56,52441.95,37416.37,36927.34,36828.83,32454.64,26643.9,19997.54,18344.88,18211.34],"coloraxis":"coloraxis","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"textposition":"auto","x":[283889.34,257013.12,205381.15,183801.94,138103.81,55706.56,52441.95,37416.37,36927.34,36828.83,32454.64,26643.9,19997.54,18344.88,18211.34],"xaxis":"x","y":["Netherlands","EIRE","Germany","France","Australia","Spain","Switzerland","Japan","Belgium","Sweden","Norway","Portugal","Channel Islands","Finland","Denmark"],"yaxis":"y","type":"bar"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmapgl":[{"type":"heatmapgl","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"},"margin":{"b":0,"l":0,"r":0,"t":30}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"Total Revenue (£)"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"Country"},"categoryorder":"total ascending"},"coloraxis":{"colorbar":{"title":{"text":"Total Revenue (£)"}},"colorscale":[[0.0,"#440154"],[0.1111111111111111,"#482878"],[0.2222222222222222,"#3e4989"],[0.3333333333333333,"#31688e"],[0.4444444444444444,"#26828e"],[0.5555555555555556,"#1f9e89"],[0.6666666666666666,"#35b779"],[0.7777777777777778,"#6ece58"],[0.8888888888888888,"#b5de2b"],[1.0,"#fde725"]]},"legend":{"tracegroupgap":0},"title":{"text":"\u003cb\u003eTop 15 International Markets (Excluding UK)\u003c\u002fb\u003e"},"barmode":"relative","margin":{"l":20,"r":20,"t":50,"b":20},"height":450},                        {"responsive": true}                    ).then(function(){
+<div style="height:525px; width:100%;">            <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script>                <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-4.0.0.min.js" integrity="sha256-FEYfO0yRyLtZCpnW0Dw/0DHKQO7Afrq3ml4+rBB818o=" crossorigin="anonymous"></script>                <div id="7ed7e3dc-8a7b-4bc8-b9ca-9a7c7b3b21e0" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("7ed7e3dc-8a7b-4bc8-b9ca-9a7c7b3b21e0")) {                    Plotly.newPlot(                        "7ed7e3dc-8a7b-4bc8-b9ca-9a7c7b3b21e0",                        [{"branchvalues":"total","customdata":[["360",180262.36,"About to Sleep"],["637",785730.53,"At Risk \u002f Need Attention"],["1136",5841797.22,"Champions"],["1068",511270.94,"Hibernating \u002f Lost"],["827",1319076.95,"Loyal Customers"],["141",49904.66,"New Customers"],["165",73023.99,"Promising \u002f Potential Loyalists"]],"domain":{"x":[0.0,1.0],"y":[0.0,1.0]},"hovertemplate":"\u003cb\u003e%{label}\u003c\u002fb\u003e\u003cbr\u003eBuyers: %{customdata[0]:,}\u003cbr\u003eTotal Revenue: \u00a3%{customdata[1]:,.0f}\u003cextra\u003e\u003c\u002fextra\u003e","ids":["About to Sleep","At Risk \u002f Need Attention","Champions","Hibernating \u002f Lost","Loyal Customers","New Customers","Promising \u002f Potential Loyalists"],"labels":["About to Sleep","At Risk \u002f Need Attention","Champions","Hibernating \u002f Lost","Loyal Customers","New Customers","Promising \u002f Potential Loyalists"],"marker":{"colors":["rgb(141,211,199)","rgb(255,255,179)","rgb(190,186,218)","rgb(251,128,114)","rgb(128,177,211)","rgb(253,180,98)","rgb(179,222,105)"]},"name":"","parents":["","","","","","",""],"values":{"dtype":"f8","bdata":"FK5H4TIBBkH2KFwPhfonQeF6FE7hSFZBKVyPwps0H0EzMzPzpCA0QexRuB4VXuhAcT0K1\u002f\u002fT8UA="},"type":"treemap","textfont":{"size":14},"texttemplate":"\u003cb\u003e%{label}\u003c\u002fb\u003e\u003cbr\u003e%{customdata[0]:,} buyers\u003cbr\u003e\u00a3%{customdata[1]:,.0f}"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"margin":{"b":0,"l":0,"r":0,"t":30}}},"legend":{"tracegroupgap":0},"title":{"text":"RFM Customer Segments Proportional to Total Revenue","font":{"size":18}},"treemapcolorway":["rgb(141,211,199)","rgb(255,255,179)","rgb(190,186,218)","rgb(251,128,114)","rgb(128,177,211)","rgb(253,180,98)","rgb(179,222,105)","rgb(252,205,229)","rgb(217,217,217)","rgb(188,128,189)","rgb(204,235,197)","rgb(255,237,111)"],"margin":{"t":50,"l":10,"r":10,"b":10}},                        {"responsive": true}                    ).then(function(){
                             
-var gd = document.getElementById('06f86cef-66d7-4ba9-86ef-ca99e011293c');
+var gd = document.getElementById('7ed7e3dc-8a7b-4bc8-b9ca-9a7c7b3b21e0');
 var x = new MutationObserver(function (mutations, observer) {{
         var display = window.getComputedStyle(gd).display;
         if (!display || display === 'none') {{
@@ -550,120 +1325,7 @@ if (outputEl) {{
     x.observe(outputEl, {childList: true});
 }}
 
-                        })                };                });            </script>        </div>
-</div>
-</div>
-<hr>
-</section>
-<section id="customer-lifetime-value-ltv-distribution" class="level3">
-<h3 class="anchored" data-anchor-id="customer-lifetime-value-ltv-distribution">4. Customer Lifetime Value (LTV) Distribution</h3>
-<p>By applying <code>.transform("sum")</code> in pandas, we calculated total customer lifetime spend across all ~4,300 unique accounts.</p>
-<div id="4cfc8ae4" class="cell" data-execution_count="5">
-<details open="" class="code-fold">
-<summary>Click to toggle code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Calculate LTV per unique customer</span></span>
-<span id="cb7-2">customer_ltv <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> (</span>
-<span id="cb7-3">    df.groupby(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'CustomerID'</span>)[<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'TotalPrice'</span>]</span>
-<span id="cb7-4">    .<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">sum</span>()</span>
-<span id="cb7-5">    .reset_index(name<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'LTV'</span>)</span>
-<span id="cb7-6">)</span>
-<span id="cb7-7"></span>
-<span id="cb7-8"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Histogram with KDE overlay</span></span>
-<span id="cb7-9">fig, ax <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> plt.subplots(figsize<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">10</span>, <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4.5</span>))</span>
-<span id="cb7-10">sns.histplot(customer_ltv[customer_ltv[<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'LTV'</span>] <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">&lt;</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5000</span>][<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'LTV'</span>], bins<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">40</span>, kde<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">True</span>, color<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'#2ca02c'</span>, ax<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>ax)</span>
-<span id="cb7-11"></span>
-<span id="cb7-12">ax.set_title(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Customer Lifetime Value Distribution (LTV &lt; £5,000)"</span>, fontsize<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">14</span>, fontweight<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'bold'</span>, pad<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">12</span>)</span>
-<span id="cb7-13">ax.set_xlabel(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Customer LTV (£)"</span>, fontsize<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">11</span>)</span>
-<span id="cb7-14">ax.set_ylabel(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Customer Count"</span>, fontsize<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">11</span>)</span>
-<span id="cb7-15">ax.xaxis.set_major_formatter(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'£</span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">{x:,.0f}</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'</span>)</span>
-<span id="cb7-16"></span>
-<span id="cb7-17">plt.tight_layout()</span>
-<span id="cb7-18">plt.show()</span></code></pre></div></div>
-</details>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="https://fabiofabrizi.github.io/analysis-by-fab/posts/data-cleaning-project_part 2/index_files/figure-html/cell-6-output-1.png" width="942" height="417" class="figure-img"></p>
-</figure>
-</div>
+                        })                };            </script>        </div>
 </div>
 </div>
 <hr>
@@ -682,39 +1344,15 @@ font-style: inherit;">'</span>)</span>
  ]]></description>
   <category>Python</category>
   <category>pandas</category>
-  <category>Data Cleansing</category>
   <category>Data Visualization</category>
   <category>E-Commerce</category>
-  <guid>https://fabiofabrizi.github.io/analysis-by-fab/posts/data-cleaning-project_part 2/</guid>
+  <guid>https://fabiofabrizi.github.io/analysis-by-fab/posts/data-cleaning-project_part-2/</guid>
   <pubDate>Thu, 10 Sep 2026 23:00:00 GMT</pubDate>
-</item>
-<item>
-  <title>Post With Code</title>
-  <dc:creator>Harlow Malloc</dc:creator>
-  <link>https://fabiofabrizi.github.io/analysis-by-fab/posts/post-with-code/</link>
-  <description><![CDATA[ 
-
-
-
-
-
-
-<p>This is a post with executable code.</p>
-
-
-
- ]]></description>
-  <category>news</category>
-  <category>code</category>
-  <category>analysis</category>
-  <guid>https://fabiofabrizi.github.io/analysis-by-fab/posts/post-with-code/</guid>
-  <pubDate>Wed, 09 Sep 2026 23:00:00 GMT</pubDate>
-  <media:content url="https://fabiofabrizi.github.io/analysis-by-fab/posts/post-with-code/image.jpg" medium="image" type="image/jpeg"/>
 </item>
 <item>
   <title>UK E-Commerce Transactions: Part 1 - Data Cleansing Pipeline</title>
   <dc:creator>Fab </dc:creator>
-  <link>https://fabiofabrizi.github.io/analysis-by-fab/posts/data-cleaning-project_part 1/</link>
+  <link>https://fabiofabrizi.github.io/analysis-by-fab/posts/data-cleaning-project_part-1/</link>
   <description><![CDATA[ 
 
 
@@ -739,7 +1377,7 @@ font-style: inherit;">'</span>)</span>
 <p>Load the necessary libraries to work with the dataset. The parquet dataset was created by importing the dataset locally, converting to parquet (using <em>df.to_parquet()</em>) and the final cleaned Parquet dataset created by the Python pipeline below.</p>
 <section id="step-1-import-the-required-libraries-and-checks" class="level3">
 <h3 class="anchored" data-anchor-id="step-1-import-the-required-libraries-and-checks">Step 1: Import the required libraries and checks</h3>
-<div id="1efab9bb" class="cell" data-execution_count="2">
+<div id="be53a54a" class="cell" data-execution_count="1">
 <details open="" class="code-fold">
 <summary>Click to toggle code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
@@ -774,7 +1412,7 @@ background-color: null;
 font-style: inherit;">#file_path = sys.path.append(str(Path(".").resolve()))</span></span></code></pre></div></div>
 </details>
 </div>
-<div id="8da685f9" class="cell" data-execution_count="3">
+<div id="c9a42da6" class="cell" data-execution_count="2">
 <details open="" class="code-fold">
 <summary>Click to toggle code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="co" style="color: #5E5E5E;
@@ -790,7 +1428,7 @@ background-color: null;
 font-style: inherit;">#online_retail['InvoiceDate'] = pd.to_datetime(online_retail['InvoiceDate'])</span></span>
 <span id="cb2-4">online_retail.head()</span></code></pre></div></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="46">
+<div class="cell-output cell-output-display" data-execution_count="2">
 <div>
 
 
@@ -877,7 +1515,7 @@ font-style: inherit;">#online_retail['InvoiceDate'] = pd.to_datetime(online_reta
 <h2 class="anchored" data-anchor-id="exploratory-data-analysis">Exploratory Data Analysis</h2>
 <section id="import-functions-from-helper-file-and-call-sequentially" class="level3">
 <h3 class="anchored" data-anchor-id="import-functions-from-helper-file-and-call-sequentially">1. Import functions from helper file and call sequentially</h3>
-<div id="e4c4fb20" class="cell" data-execution_count="4">
+<div id="1b8e7b71" class="cell" data-execution_count="3">
 <details open="" class="code-fold">
 <summary>Click to toggle code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
@@ -889,81 +1527,111 @@ font-style: inherit;">from</span> src.modular_script_Quarto <span class="im" sty
 background-color: null;
 font-style: inherit;">import</span> dataframe_info,  clean_data, cancelled_transactions, clean_StockCode, clean_quantities_and_prices, generate_data_audit </span></code></pre></div></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Format date strings into datetime
+&lt;class 'pandas.DataFrame'&gt;
+Index: 406829 entries, 0 to 541908
+Data columns (total 8 columns):
+ #   Column       Non-Null Count   Dtype         
+---  ------       --------------   -----         
+ 0   InvoiceNo    406829 non-null  str           
+ 1   StockCode    406829 non-null  str           
+ 2   Description  406829 non-null  str           
+ 3   Quantity     406829 non-null  int64         
+ 4   InvoiceDate  406829 non-null  datetime64[us]
+ 5   UnitPrice    406829 non-null  float64       
+ 6   CustomerID   406829 non-null  float64       
+ 7   Country      406829 non-null  str           
+dtypes: datetime64[us](1), float64(2), int64(1), str(4)
+memory usage: 47.9 MB
+After dropping cancellations: 397,924 rows
+      StockCode                 Description  OccurrenceCount
+5          POST                     POSTAGE             1099
+3             M                      Manual              290
+1            C2                    CARRIAGE              133
+2           DOT              DOTCOM POSTAGE               16
+0  BANK CHARGES                Bank Charges               12
+4          PADS  PADS TO MATCH ALL CUSHIONS                4
+['POST', 'M', 'C2', 'DOT', 'BANK CHARGES', 'PADS']
+After removing the non-numeric stock codes: 396,370 rows
+After removing non-positive quantities and prices: 396,337 rows
+[{'Metric': 'Total Rows', 'Raw State': '541,909', 'Cleaned State': '396,337', 'Impact': '-145,572 rows removed'}, {'Metric': 'Unique Stock Codes', 'Raw State': '4,070', 'Cleaned State': '3,659', 'Impact': 'Non-inventory stock codes removed (POST, D, etc.)'}, {'Metric': "Cancelled Invoices ('C')", 'Raw State': '9,288', 'Cleaned State': '0', 'Impact': 'Isolated to prevent negative revenue distortion'}, {'Metric': 'Zero / Negative Unit Prices', 'Raw State': '2,517', 'Cleaned State': '0', 'Impact': 'Price anomalies and bad entries removed'}]</code></pre>
+</div>
 </div>
 <p>Summary of the functions: <br></p>
-<div id="a702ca10" class="cell" data-execution_count="5">
+<div id="0d84994e" class="cell" data-execution_count="4">
 <details open="" class="code-fold">
 <summary>Click to toggle code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><span class="co" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">"""</span></span>
-<span id="cb4-2"><span class="co" style="color: #5E5E5E;
+<span id="cb5-2"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">*dataframe_info()* </span></span>
-<span id="cb4-3"></span>
-<span id="cb4-4"><span class="co" style="color: #5E5E5E;
+<span id="cb5-3"></span>
+<span id="cb5-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">- Number of rows and columns</span></span>
-<span id="cb4-5"><span class="co" style="color: #5E5E5E;
+<span id="cb5-5"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">- data types</span></span>
-<span id="cb4-6"><span class="co" style="color: #5E5E5E;
+<span id="cb5-6"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">- basic statistics</span></span>
-<span id="cb4-7"></span>
-<span id="cb4-8"><span class="co" style="color: #5E5E5E;
+<span id="cb5-7"></span>
+<span id="cb5-8"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">*clean_data()*</span></span>
-<span id="cb4-9"></span>
-<span id="cb4-10"><span class="co" style="color: #5E5E5E;
+<span id="cb5-9"></span>
+<span id="cb5-10"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">- Drop all rows containing empty values</span></span>
-<span id="cb4-11"><span class="co" style="color: #5E5E5E;
+<span id="cb5-11"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">- Format date strings into datetime UTC</span></span>
-<span id="cb4-12"><span class="co" style="color: #5E5E5E;
+<span id="cb5-12"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">- Remove the whitespace</span></span>
-<span id="cb4-13"></span>
-<span id="cb4-14"><span class="co" style="color: #5E5E5E;
+<span id="cb5-13"></span>
+<span id="cb5-14"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">*cancelled_transactions()*</span></span>
-<span id="cb4-15"></span>
-<span id="cb4-16"><span class="co" style="color: #5E5E5E;
+<span id="cb5-15"></span>
+<span id="cb5-16"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">- Disregard any cancelled transactions</span></span>
-<span id="cb4-17"></span>
-<span id="cb4-18"><span class="co" style="color: #5E5E5E;
+<span id="cb5-17"></span>
+<span id="cb5-18"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">*clean_StockCode()*</span></span>
-<span id="cb4-19"></span>
-<span id="cb4-20"><span class="co" style="color: #5E5E5E;
+<span id="cb5-19"></span>
+<span id="cb5-20"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">- Get a list of non-numeric codes</span></span>
-<span id="cb4-21"><span class="co" style="color: #5E5E5E;
+<span id="cb5-21"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">- Remove any non-numeric codes</span></span>
-<span id="cb4-22"></span>
-<span id="cb4-23"><span class="co" style="color: #5E5E5E;
+<span id="cb5-22"></span>
+<span id="cb5-23"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">*clean_quantities_and_prices*</span></span>
-<span id="cb4-24"></span>
-<span id="cb4-25"><span class="co" style="color: #5E5E5E;
+<span id="cb5-24"></span>
+<span id="cb5-25"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">- Remove non-positive quantities and prices</span></span>
-<span id="cb4-26"></span>
-<span id="cb4-27"><span class="co" style="color: #5E5E5E;
+<span id="cb5-26"></span>
+<span id="cb5-27"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">*generate_data_audit*</span></span>
-<span id="cb4-28"></span>
-<span id="cb4-29"><span class="co" style="color: #5E5E5E;
+<span id="cb5-28"></span>
+<span id="cb5-29"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">- Compare the original dataset with the cleaned one in tabular format</span></span>
-<span id="cb4-30"><span class="co" style="color: #5E5E5E;
+<span id="cb5-30"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">"""</span></span></code></pre></div></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="48">
+<div class="cell-output cell-output-display" data-execution_count="4">
 <pre><code>'\n*dataframe_info()* \n\n- Number of rows and columns\n- data types\n- basic statistics\n\n*clean_data()*\n\n- Drop all rows containing empty values\n- Format date strings into datetime UTC\n- Remove the whitespace\n\n*cancelled_transactions()*\n\n- Disregard any cancelled transactions\n\n*clean_StockCode()*\n\n- Get a list of non-numeric codes\n- Remove any non-numeric codes\n\n*clean_quantities_and_prices*\n\n- Remove non-positive quantities and prices\n\n*generate_data_audit*\n\n- Compare the original dataset with the cleaned one in tabular format\n'</code></pre>
 </div>
 </div>
@@ -971,32 +1639,32 @@ font-style: inherit;">"""</span></span></code></pre></div></div>
 </section>
 <section id="get-basic-information-on-the-data" class="level3">
 <h3 class="anchored" data-anchor-id="get-basic-information-on-the-data">2. Get basic information on the data</h3>
-<div id="52146c40" class="cell" data-execution_count="6">
+<div id="b2fde473" class="cell" data-execution_count="5">
 <details open="" class="code-fold">
 <summary>Click to toggle code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><span class="co" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># call the function</span></span>
-<span id="cb6-2">dataframe_info()</span></code></pre></div></div>
+<span id="cb7-2">dataframe_info()</span></code></pre></div></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>The dataset has 541909 rows and 8 columns.
 Columns of the dataframe and associated data types:
-&lt;class 'pandas.core.frame.DataFrame'&gt;
+&lt;class 'pandas.DataFrame'&gt;
 RangeIndex: 541909 entries, 0 to 541908
 Data columns (total 8 columns):
  #   Column       Non-Null Count   Dtype  
 ---  ------       --------------   -----  
- 0   InvoiceNo    541909 non-null  object 
- 1   StockCode    541909 non-null  object 
- 2   Description  540455 non-null  object 
+ 0   InvoiceNo    541909 non-null  str    
+ 1   StockCode    541909 non-null  str    
+ 2   Description  540455 non-null  str    
  3   Quantity     541909 non-null  int64  
- 4   InvoiceDate  541909 non-null  object 
+ 4   InvoiceDate  541909 non-null  str    
  5   UnitPrice    541909 non-null  float64
  6   CustomerID   406829 non-null  float64
- 7   Country      541909 non-null  object 
-dtypes: float64(2), int64(1), object(5)
-memory usage: 33.1+ MB
+ 7   Country      541909 non-null  str    
+dtypes: float64(2), int64(1), str(5)
+memory usage: 67.3 MB
 None
 
 Basic statistics of the data frame:
@@ -1020,36 +1688,36 @@ max     80995.000000   38970.000000   18287.000000</code></pre>
 <li>Format the date strings into datetime UTC</li>
 <li>Remove the whitespace</li>
 </ul>
-<div id="57a94a4c" class="cell" data-execution_count="7">
+<div id="8c966670" class="cell" data-execution_count="6">
 <details open="" class="code-fold">
 <summary>Click to toggle code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">#import pandas as pd</span></span>
-<span id="cb8-2"><span class="co" style="color: #5E5E5E;
+<span id="cb9-2"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># assign to variable</span></span>
-<span id="cb8-3">step_3 <span class="op" style="color: #5E5E5E;
+<span id="cb9-3">step_3 <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> clean_data(online_retail)</span></code></pre></div></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Format date strings into datetime
-&lt;class 'pandas.core.frame.DataFrame'&gt;
+&lt;class 'pandas.DataFrame'&gt;
 Index: 406829 entries, 0 to 541908
 Data columns (total 8 columns):
  #   Column       Non-Null Count   Dtype         
 ---  ------       --------------   -----         
- 0   InvoiceNo    406829 non-null  object        
- 1   StockCode    406829 non-null  object        
- 2   Description  406829 non-null  object        
+ 0   InvoiceNo    406829 non-null  str           
+ 1   StockCode    406829 non-null  str           
+ 2   Description  406829 non-null  str           
  3   Quantity     406829 non-null  int64         
- 4   InvoiceDate  406829 non-null  datetime64[ns]
+ 4   InvoiceDate  406829 non-null  datetime64[us]
  5   UnitPrice    406829 non-null  float64       
  6   CustomerID   406829 non-null  float64       
- 7   Country      406829 non-null  object        
-dtypes: datetime64[ns](1), float64(2), int64(1), object(4)
-memory usage: 27.9+ MB</code></pre>
+ 7   Country      406829 non-null  str           
+dtypes: datetime64[us](1), float64(2), int64(1), str(4)
+memory usage: 47.9 MB</code></pre>
 </div>
 </div>
 <hr>
@@ -1059,10 +1727,10 @@ memory usage: 27.9+ MB</code></pre>
 <ul>
 <li>Remove all the transactions where the InvoiceNo starts with C.</li>
 </ul>
-<div id="4ed2163f" class="cell" data-execution_count="8">
+<div id="59e1b6dc" class="cell" data-execution_count="7">
 <details open="" class="code-fold">
 <summary>Click to toggle code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1">step_4 <span class="op" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1">step_4 <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> cancelled_transactions(step_3)</span></code></pre></div></div>
 </details>
@@ -1074,10 +1742,10 @@ font-style: inherit;">=</span> cancelled_transactions(step_3)</span></code></pre
 </section>
 <section id="find-the-non-numeric-stock-codes-and-remove-them." class="level3">
 <h3 class="anchored" data-anchor-id="find-the-non-numeric-stock-codes-and-remove-them.">5. Find the non-numeric Stock Codes and Remove them.</h3>
-<div id="cd14c094" class="cell" data-execution_count="9">
+<div id="75ca752a" class="cell" data-execution_count="8">
 <details open="" class="code-fold">
 <summary>Click to toggle code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1">step_5 <span class="op" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1">step_5 <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> clean_StockCode(step_4)</span></code></pre></div></div>
 </details>
@@ -1096,10 +1764,10 @@ After removing the non-numeric stock codes: 396,370 rows</code></pre>
 </section>
 <section id="remove-the-non-positive-quantities-and-prices-and-drop-duplicates" class="level3">
 <h3 class="anchored" data-anchor-id="remove-the-non-positive-quantities-and-prices-and-drop-duplicates">6. Remove the non-positive quantities and prices and drop duplicates</h3>
-<div id="d44fb57c" class="cell" data-execution_count="10">
+<div id="96cb7da7" class="cell" data-execution_count="9">
 <details open="" class="code-fold">
 <summary>Click to toggle code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1">step_6 <span class="op" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1">step_6 <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> clean_quantities_and_prices(step_5)</span></code></pre></div></div>
 </details>
@@ -1111,10 +1779,10 @@ font-style: inherit;">=</span> clean_quantities_and_prices(step_5)</span></code>
 <section id="export-the-cleaned-dataset" class="level3">
 <h3 class="anchored" data-anchor-id="export-the-cleaned-dataset">7. Export the cleaned dataset:</h3>
 <p>Export the cleaned dataset to be used later.</p>
-<div id="53966486" class="cell" data-execution_count="11">
+<div id="29571179" class="cell" data-execution_count="10">
 <details open="" class="code-fold">
 <summary>Click to toggle code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1">cleaned_retail <span class="op" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1">cleaned_retail <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> step_6.to_parquet(<span class="st" style="color: #20794D;
 background-color: null;
@@ -1124,34 +1792,34 @@ font-style: inherit;">"../data_dcp/clean_online_retail.parquet"</span>)</span></
 </section>
 <section id="summarise-the-data-in-tabular-format" class="level3">
 <h3 class="anchored" data-anchor-id="summarise-the-data-in-tabular-format">8. Summarise the data in tabular format:</h3>
-<div id="e2f51798" class="cell" data-execution_count="12">
+<div id="69d10daa" class="cell" data-execution_count="11">
 <details open="" class="code-fold">
 <summary>Click to toggle code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><span class="im" style="color: #00769E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">from</span> great_tables <span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">import</span> GT, style, loc</span>
-<span id="cb17-2"></span>
-<span id="cb17-3"><span class="co" style="color: #5E5E5E;
+<span id="cb18-2"></span>
+<span id="cb18-3"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># import the cleaned dataset</span></span>
-<span id="cb17-4">cleaned_retail <span class="op" style="color: #5E5E5E;
+<span id="cb18-4">cleaned_retail <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> pd.read_parquet(<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"../data_dcp/clean_online_retail.parquet"</span>)</span>
-<span id="cb17-5"></span>
-<span id="cb17-6">audit_data <span class="op" style="color: #5E5E5E;
+<span id="cb18-5"></span>
+<span id="cb18-6">audit_data <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span>[</span>
-<span id="cb17-7">        {</span>
-<span id="cb17-8">            <span class="st" style="color: #20794D;
+<span id="cb18-7">        {</span>
+<span id="cb18-8">            <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Metric"</span>: <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Total Rows"</span>,</span>
-<span id="cb17-9">            <span class="st" style="color: #20794D;
+<span id="cb18-9">            <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Raw State"</span>: <span class="ss" style="color: #20794D;
 background-color: null;
@@ -1164,7 +1832,7 @@ background-color: null;
 font-style: inherit;">:,}</span><span class="ss" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"</span>,</span>
-<span id="cb17-10">            <span class="st" style="color: #20794D;
+<span id="cb18-10">            <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Cleaned State"</span>: <span class="ss" style="color: #20794D;
 background-color: null;
@@ -1177,7 +1845,7 @@ background-color: null;
 font-style: inherit;">:,}</span><span class="ss" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"</span>,</span>
-<span id="cb17-11">            <span class="st" style="color: #20794D;
+<span id="cb18-11">            <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Impact"</span>: <span class="ss" style="color: #20794D;
 background-color: null;
@@ -1194,14 +1862,14 @@ background-color: null;
 font-style: inherit;">:,}</span><span class="ss" style="color: #20794D;
 background-color: null;
 font-style: inherit;"> rows removed"</span></span>
-<span id="cb17-12">        },</span>
-<span id="cb17-13">        {</span>
-<span id="cb17-14">            <span class="st" style="color: #20794D;
+<span id="cb18-12">        },</span>
+<span id="cb18-13">        {</span>
+<span id="cb18-14">            <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Metric"</span>: <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Unique Stock Codes"</span>,</span>
-<span id="cb17-15">            <span class="st" style="color: #20794D;
+<span id="cb18-15">            <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Raw State"</span>: <span class="ss" style="color: #20794D;
 background-color: null;
@@ -1216,7 +1884,7 @@ background-color: null;
 font-style: inherit;">:,}</span><span class="ss" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"</span>,</span>
-<span id="cb17-16">            <span class="st" style="color: #20794D;
+<span id="cb18-16">            <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Cleaned State"</span>: <span class="ss" style="color: #20794D;
 background-color: null;
@@ -1231,19 +1899,19 @@ background-color: null;
 font-style: inherit;">:,}</span><span class="ss" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"</span>,</span>
-<span id="cb17-17">            <span class="st" style="color: #20794D;
+<span id="cb18-17">            <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Impact"</span>: <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Non-inventory stock codes removed (POST, D, etc.)"</span></span>
-<span id="cb17-18">        },</span>
-<span id="cb17-19">        {</span>
-<span id="cb17-20">            <span class="st" style="color: #20794D;
+<span id="cb18-18">        },</span>
+<span id="cb18-19">        {</span>
+<span id="cb18-20">            <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Metric"</span>: <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Cancelled Invoices ('C')"</span>,</span>
-<span id="cb17-21">            <span class="st" style="color: #20794D;
+<span id="cb18-21">            <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Raw State"</span>: <span class="ss" style="color: #20794D;
 background-color: null;
@@ -1272,7 +1940,7 @@ background-color: null;
 font-style: inherit;">:,}</span><span class="ss" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"</span>,</span>
-<span id="cb17-22">            <span class="st" style="color: #20794D;
+<span id="cb18-22">            <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Cleaned State"</span>: <span class="ss" style="color: #20794D;
 background-color: null;
@@ -1301,19 +1969,19 @@ background-color: null;
 font-style: inherit;">:,}</span><span class="ss" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"</span>,</span>
-<span id="cb17-23">            <span class="st" style="color: #20794D;
+<span id="cb18-23">            <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Impact"</span>: <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Isolated to prevent negative revenue distortion"</span></span>
-<span id="cb17-24">        },</span>
-<span id="cb17-25">        {</span>
-<span id="cb17-26">            <span class="st" style="color: #20794D;
+<span id="cb18-24">        },</span>
+<span id="cb18-25">        {</span>
+<span id="cb18-26">            <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Metric"</span>: <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Zero / Negative Unit Prices"</span>,</span>
-<span id="cb17-27">            <span class="st" style="color: #20794D;
+<span id="cb18-27">            <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Raw State"</span>: <span class="ss" style="color: #20794D;
 background-color: null;
@@ -1334,7 +2002,7 @@ background-color: null;
 font-style: inherit;">:,}</span><span class="ss" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"</span>,</span>
-<span id="cb17-28">            <span class="st" style="color: #20794D;
+<span id="cb18-28">            <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Cleaned State"</span>: <span class="ss" style="color: #20794D;
 background-color: null;
@@ -1355,46 +2023,46 @@ background-color: null;
 font-style: inherit;">:,}</span><span class="ss" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"</span>,</span>
-<span id="cb17-29">            <span class="st" style="color: #20794D;
+<span id="cb18-29">            <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Impact"</span>: <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Price anomalies and bad entries removed"</span></span>
-<span id="cb17-30">        }</span>
-<span id="cb17-31"></span>
-<span id="cb17-32">    ]</span>
-<span id="cb17-33"></span>
-<span id="cb17-34"><span class="co" style="color: #5E5E5E;
+<span id="cb18-30">        }</span>
+<span id="cb18-31"></span>
+<span id="cb18-32">    ]</span>
+<span id="cb18-33"></span>
+<span id="cb18-34"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create dataframe so output renders nicely</span></span>
-<span id="cb17-35">df_audit <span class="op" style="color: #5E5E5E;
+<span id="cb18-35">df_audit <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> pd.DataFrame(audit_data)</span>
-<span id="cb17-36"></span>
-<span id="cb17-37"><span class="co" style="color: #5E5E5E;
+<span id="cb18-36"></span>
+<span id="cb18-37"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Pass to GT for executive-level Quarto rendering</span></span>
-<span id="cb17-38">(</span>
-<span id="cb17-39">    GT(df_audit)</span>
-<span id="cb17-40">    .tab_header(</span>
-<span id="cb17-41">        title<span class="op" style="color: #5E5E5E;
+<span id="cb18-38">(</span>
+<span id="cb18-39">    GT(df_audit)</span>
+<span id="cb18-40">    .tab_header(</span>
+<span id="cb18-41">        title<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Data Quality Audit Pipeline"</span>,</span>
-<span id="cb17-42">        subtitle<span class="op" style="color: #5E5E5E;
+<span id="cb18-42">        subtitle<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Before vs. After  Impact Analysis — Online Retail II"</span></span>
-<span id="cb17-43">    )</span>
-<span id="cb17-44">    .cols_label(</span>
-<span id="cb17-45">        Metric<span class="op" style="color: #5E5E5E;
+<span id="cb18-43">    )</span>
+<span id="cb18-44">    .cols_label(</span>
+<span id="cb18-45">        Metric<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Audit Metric"</span>,</span>
-<span id="cb17-46">        <span class="op" style="color: #5E5E5E;
+<span id="cb18-46">        <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">**</span>{<span class="st" style="color: #20794D;
 background-color: null;
@@ -1405,83 +2073,83 @@ background-color: null;
 font-style: inherit;">"Cleaned State"</span>: <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Cleaned Data"</span>}</span>
-<span id="cb17-47">    )</span>
-<span id="cb17-48">    .tab_style(</span>
-<span id="cb17-49">        style<span class="op" style="color: #5E5E5E;
+<span id="cb18-47">    )</span>
+<span id="cb18-48">    .tab_style(</span>
+<span id="cb18-49">        style<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span>style.text(weight<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"bold"</span>),</span>
-<span id="cb17-50">        locations<span class="op" style="color: #5E5E5E;
+<span id="cb18-50">        locations<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span>loc.column_labels()</span>
-<span id="cb17-51">    )</span>
-<span id="cb17-52">)</span></code></pre></div></div>
+<span id="cb18-51">    )</span>
+<span id="cb18-52">)</span></code></pre></div></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="55">
-<div id="lrjjpohsuy" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div class="cell-output cell-output-display" data-execution_count="11">
+<div id="surtieuhwf" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#lrjjpohsuy table {
+#surtieuhwf table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#lrjjpohsuy thead, tbody, tfoot, tr, td, th { border-style: none; }
+#surtieuhwf thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#lrjjpohsuy p { margin: 0; padding: 0; }
- #lrjjpohsuy .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #lrjjpohsuy .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #lrjjpohsuy .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #lrjjpohsuy .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #lrjjpohsuy .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #lrjjpohsuy .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #lrjjpohsuy .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #lrjjpohsuy .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #lrjjpohsuy .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #lrjjpohsuy .gt_column_spanner_outer:first-child { padding-left: 0; }
- #lrjjpohsuy .gt_column_spanner_outer:last-child { padding-right: 0; }
- #lrjjpohsuy .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #lrjjpohsuy .gt_spanner_row { border-bottom-style: hidden; }
- #lrjjpohsuy .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #lrjjpohsuy .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #lrjjpohsuy .gt_from_md> :first-child { margin-top: 0; }
- #lrjjpohsuy .gt_from_md> :last-child { margin-bottom: 0; }
- #lrjjpohsuy .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #lrjjpohsuy .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #lrjjpohsuy .gt_indent_1 { text-indent: 5px; }
- #lrjjpohsuy .gt_indent_2 { text-indent: calc(5px * 2); }
- #lrjjpohsuy .gt_indent_3 { text-indent: calc(5px * 3); }
- #lrjjpohsuy .gt_indent_4 { text-indent: calc(5px * 4); }
- #lrjjpohsuy .gt_indent_5 { text-indent: calc(5px * 5); }
- #lrjjpohsuy .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #lrjjpohsuy .gt_row_group_first td { border-top-width: 2px; }
- #lrjjpohsuy .gt_row_group_first th { border-top-width: 2px; }
- #lrjjpohsuy .gt_striped { color: #333333; background-color: #F4F4F4; }
- #lrjjpohsuy .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #lrjjpohsuy .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #lrjjpohsuy .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #lrjjpohsuy .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #lrjjpohsuy .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #lrjjpohsuy .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #lrjjpohsuy .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #lrjjpohsuy .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #lrjjpohsuy .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #lrjjpohsuy .gt_left { text-align: left; }
- #lrjjpohsuy .gt_center { text-align: center; }
- #lrjjpohsuy .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #lrjjpohsuy .gt_font_normal { font-weight: normal; }
- #lrjjpohsuy .gt_font_bold { font-weight: bold; }
- #lrjjpohsuy .gt_font_italic { font-style: italic; }
- #lrjjpohsuy .gt_super { font-size: 65%; }
- #lrjjpohsuy .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #lrjjpohsuy .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #lrjjpohsuy .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #lrjjpohsuy .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #lrjjpohsuy .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #lrjjpohsuy .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#surtieuhwf p { margin: 0; padding: 0; }
+ #surtieuhwf .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #surtieuhwf .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #surtieuhwf .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #surtieuhwf .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #surtieuhwf .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #surtieuhwf .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #surtieuhwf .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #surtieuhwf .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #surtieuhwf .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #surtieuhwf .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #surtieuhwf .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #surtieuhwf .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #surtieuhwf .gt_spanner_row { border-bottom-style: hidden; }
+ #surtieuhwf .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #surtieuhwf .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #surtieuhwf .gt_from_md> :first-child { margin-top: 0; }
+ #surtieuhwf .gt_from_md> :last-child { margin-bottom: 0; }
+ #surtieuhwf .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #surtieuhwf .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #surtieuhwf .gt_indent_1 { text-indent: 5px; }
+ #surtieuhwf .gt_indent_2 { text-indent: calc(5px * 2); }
+ #surtieuhwf .gt_indent_3 { text-indent: calc(5px * 3); }
+ #surtieuhwf .gt_indent_4 { text-indent: calc(5px * 4); }
+ #surtieuhwf .gt_indent_5 { text-indent: calc(5px * 5); }
+ #surtieuhwf .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #surtieuhwf .gt_row_group_first td { border-top-width: 2px; }
+ #surtieuhwf .gt_row_group_first th { border-top-width: 2px; }
+ #surtieuhwf .gt_striped { color: #333333; background-color: #F4F4F4; }
+ #surtieuhwf .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #surtieuhwf .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #surtieuhwf .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+ #surtieuhwf .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #surtieuhwf .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #surtieuhwf .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+ #surtieuhwf .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+ #surtieuhwf .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #surtieuhwf .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #surtieuhwf .gt_left { text-align: left; }
+ #surtieuhwf .gt_center { text-align: center; }
+ #surtieuhwf .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #surtieuhwf .gt_font_normal { font-weight: normal; }
+ #surtieuhwf .gt_font_bold { font-weight: bold; }
+ #surtieuhwf .gt_font_italic { font-style: italic; }
+ #surtieuhwf .gt_super { font-size: 65%; }
+ #surtieuhwf .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #surtieuhwf .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+ #surtieuhwf .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #surtieuhwf .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #surtieuhwf .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #surtieuhwf .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 
@@ -1552,7 +2220,7 @@ font-style: inherit;">=</span>loc.column_labels()</span>
   <category>Data Cleansing</category>
   <category>Data Visualization</category>
   <category>E-Commerce</category>
-  <guid>https://fabiofabrizi.github.io/analysis-by-fab/posts/data-cleaning-project_part 1/</guid>
+  <guid>https://fabiofabrizi.github.io/analysis-by-fab/posts/data-cleaning-project_part-1/</guid>
   <pubDate>Tue, 08 Sep 2026 23:00:00 GMT</pubDate>
 </item>
 <item>
@@ -1566,7 +2234,7 @@ font-style: inherit;">=</span>loc.column_labels()</span>
 
 
 
-<p>This is the first post in a Quarto blog. Welcome!</p>
+<p>This will be a blog about data analysis - the process and the methods used to (hopefully) give useful insights.</p>
 <p><img src="https://fabiofabrizi.github.io/analysis-by-fab/posts/welcome/thumbnail.jpg" class="img-fluid"></p>
 
 
